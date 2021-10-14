@@ -1,0 +1,32 @@
+%includes
+%struct-type
+%{
+enum {
+    LITH_PRIM_EXIT,
+    LITH_PRIM_CALL,
+    LITH_PRIM_GOTO,
+    LITH_PRIM_ISNULL,
+    LITH_PRIM_ISVAL,
+    LITH_PRIM_ISPTR,
+    LITH_PRIM_ISPAIR,
+    LITH_PRIM_ISATOM,
+    LITH_PRIM_HERE,
+    LITH_PRIM_ALLOT,
+    LITH_PRIM_PRINT,
+    LITH_PRIM_CR,
+};
+%}
+struct resword_s { const char * name; int id; };
+%%
+"exit", LITH_PRIM_EXIT,
+"call", LITH_PRIM_CALL,
+"goto", LITH_PRIM_GOTO,
+"null?", LITH_PRIM_ISNULL,
+"val?", LITH_PRIM_ISVAL,
+"ptr?", LITH_PRIM_ISPTR,
+"pair?", LITH_PRIM_ISPAIR,
+"atom?", LITH_PRIM_ISATOM,
+"here", LITH_PRIM_HERE,
+"allot", LITH_PRIM_ALLOT,
+"print", LITH_PRIM_PRINT,
+"cr", LITH_PRIM_CR,
