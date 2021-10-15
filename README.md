@@ -131,7 +131,25 @@ Primitives are represented by atoms of their name.
 | output | `print` | ( cell -- ) | print a cell in a way that's more useful for debugging than anything
 | | `cr` | ( -- ) | print a newline
 
-## To-Do
+## Future
+
+### Regimes
+
+We can generalize and unify the ideas of memory and stacks with *regimes*.
+A *regime* is a growable dynamic array of cells,
+somewhat like a memory segment.
+The top 16 bits of a `Ptr` designates its regime.
+Rather than the stacks residing in a separate memory space,
+we would designate regimes for each stack
+and a regime for the basic dictionary.
+Additional regimes would be mapped on demand.
+
+Rather than distinguishing `Pair`s from `Atom`s by their low bits,
+we could distinguish them by their regime--
+similar to how many Lisp machines had memory regions for each kind of object.
+Different regimes could hold different types of objects just as well.
+
+### To-Do
 
 Truthy and falsey values are represented inconsistently.
 It should be fine to use `NIL` to mean "false"
