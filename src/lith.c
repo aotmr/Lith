@@ -256,37 +256,37 @@ static void doCIStore(lith_State *st)
     CIndex(st, addr, offs) = lith_getValOrPtr(data) & 0xFFu;
 }
 
-void lith_dumpMem(lith_State *st)
+void lith_dumpMem(lith_State *st, FILE *outFile)
 {
     assert(st);
 
     static const int CELLS_PER_ROW = 4;
 
-    puts("");
+    fputc('\n', outFile);
     for (int i = 0; i < st->rHere && i < st->memLimit; i += CELLS_PER_ROW)
     {
-        printf("%08X |", i);
+        fprintf(outFile, "%08X |", i);
         for (int j = 0; j < CELLS_PER_ROW; ++j)
         {
-            printf("  %016lX", st->mem[i + j]);
+            fprintf(outFile, "  %016lX", st->mem[i + j]);
         }
 
-        printf("%s", " | ");
+        fprintf(outFile, "%s", " | ");
         // print character data of memory
         for (int j = 0; j < CELLS_PER_ROW * sizeof(CELL); ++j)
         {
             unsigned char c = CIndex(st, lith_makePtr(i), lith_makeVal(j));
             if (j % sizeof(CELL) == 0)
-                putchar(' ');
+                fputc(' ', outFile);
 
             if (isprint(c))
-                putchar(c);
+                fputc(c, outFile);
             else if (iscntrl(c))
-                printf(ERev "%c" EReset, c + ' ');
+                fprintf(outFile, ERev "%c" EReset, c + ' ');
             else
-                printf(ERev "." EReset);
+                fprintf(outFile, ERev "." EReset);
         }
-        puts("");
+        fputc('\n', outFile);
     }
 }
 
@@ -299,12 +299,12 @@ static struct resword_s *hashAtom(CELL a)
     return in_word_set(lith_atomStr(a), lith_atomLen(a));
 }
 
-static void dumpInnerState(lith_State *st, const char *info)
+static void dumpInnerState(lith_State *st, FILE *outFile, const char *info)
 {
     assert(st);
     assert(info);
 
-    fprintf(stderr, ERev "IP %08X\tDSP% 4d\tRSP% 4d\t%s\n" EReset, st->rIP, st->dataStackPtr, st->retStackPtr, info);
+    fprintf(outFile, ERev "IP %08X\tDSP% 4d\tRSP% 4d\t%s\n" EReset, st->rIP, st->dataStackPtr, st->retStackPtr, info);
 }
 
 void lith_call(lith_State *st, CELL xt)
@@ -320,7 +320,7 @@ void lith_call(lith_State *st, CELL xt)
     {
         while (lith_isEven(xt))
         {
-            dumpInnerState(st, "Even");
+            dumpInnerState(st, stderr, "Even");
             RPush(st) = st->rIP;
             st->rIP = xt;
             xt = Mem(st, st->rIP);
@@ -328,12 +328,12 @@ void lith_call(lith_State *st, CELL xt)
         }
         if (lith_isNull(xt))
         {
-            dumpInnerState(st, "NIL");
+            dumpInnerState(st, stderr, "NIL");
             st->rIP = RPop(st);
         }
         else if (lith_isVal(xt))
         {
-            dumpInnerState(st, "Val");
+            dumpInnerState(st, stderr, "Val");
             DPush(st) = xt;
         }
         else
@@ -398,7 +398,7 @@ void lith_call(lith_State *st, CELL xt)
                 assert(0 && "illegal primitive number");
                 __builtin_unreachable();
             }
-            dumpInnerState(st, "Atom");
+            dumpInnerState(st, stderr, "Atom");
         }
         if ((goOn = st->retStackPtr > retStackPtr0))
         {

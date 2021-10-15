@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 typedef int64_t lith_Cell;
 #define CELL lith_Cell
@@ -19,7 +20,7 @@ lith_State *lith_create(const lith_CreateOptions *opt);
 
 void lith_destroy(lith_State *st);
 
-void lith_dumpMem(lith_State *st);
+void lith_dumpMem(lith_State *st, FILE * outFile);
 
 /* Cell encoding --------------------------------------------------------------
 

@@ -40,6 +40,6 @@ int main(int argc, char **argv)
     }
     el_end(el);
 
-    lith_dumpMem(st);
+    lith_dumpMem(st, stderr);
     lith_destroy(st);
 }
