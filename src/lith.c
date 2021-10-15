@@ -83,11 +83,12 @@ static void doQuot(lith_State *st)
 }
 
 #define DoUnaryFn(st, fn) (DTop(st) = fn(DTop(st)))
-#define DoBinaryOp(st, op)                     \
-    do                                         \
-    {                                          \
-        DNxt(st) op## = DTop(st) & ~1; \
-        DPop(st);                              \
+#define DoBinaryOp(st, op)                                  \
+    do                                                      \
+    {                                                       \
+        int tag = DNxt(st) & 1;                             \
+        DNxt(st) = (DNxt(st) & ~1) op(DTop(st) & ~1) | tag; \
+        DPop(st);                                           \
     } while (0)
 
 static void doMul(lith_State *st)
