@@ -52,6 +52,7 @@ enum {
     LITH_PRIM_XOR,
     LITH_PRIM_HERE,
     LITH_PRIM_ALLOT,
+    LITH_PRIM_BIND,
     LITH_PRIM_FETCH,
     LITH_PRIM_STORE,
     LITH_PRIM_CIFETCH,
@@ -59,11 +60,11 @@ enum {
     LITH_PRIM_PRINT,
     LITH_PRIM_CR,
 };
-#line 33 "src/prim.gperf"
+#line 34 "src/prim.gperf"
 struct resword_s { const char * name; int id; };
 #include <string.h>
 
-#define TOTAL_KEYWORDS 26
+#define TOTAL_KEYWORDS 27
 #define MIN_WORD_LENGTH 2
 #define MAX_WORD_LENGTH 7
 #define MIN_HASH_VALUE 3
@@ -91,8 +92,8 @@ hash (register const char *str, register size_t len)
       60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
       60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
       60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
-      60, 60, 60, 60, 60, 60, 60,  0,  0,  5,
-       0, 15, 20, 30, 15,  5, 60, 60, 10,  0,
+      60, 60, 60, 60, 60, 60, 60,  0, 20,  5,
+       0, 15, 20, 30, 20,  5, 60, 60, 10,  0,
       10,  0,  0, 20,  5, 15,  0,  5,  0, 60,
        0, 60, 60, 60, 60, 60, 60, 60, 60, 60,
       60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
@@ -131,57 +132,59 @@ in_word_set (register const char *str, register size_t len)
 {
   static struct resword_s wordlist[] =
     {
-#line 46 "src/prim.gperf"
-      {"add", LITH_PRIM_ADD,},
-#line 43 "src/prim.gperf"
-      {"atom?", LITH_PRIM_ISATOM,},
-#line 51 "src/prim.gperf"
-      {"or", LITH_PRIM_OR,},
-#line 52 "src/prim.gperf"
-      {"xor", LITH_PRIM_XOR,},
-#line 41 "src/prim.gperf"
-      {"ptr?", LITH_PRIM_ISPTR,},
-#line 42 "src/prim.gperf"
-      {"pair?", LITH_PRIM_ISPAIR,},
-#line 49 "src/prim.gperf"
-      {"divmod", LITH_PRIM_DIVMOD,},
-#line 60 "src/prim.gperf"
-      {"cr", LITH_PRIM_CR,},
-#line 50 "src/prim.gperf"
-      {"and", LITH_PRIM_AND,},
-#line 40 "src/prim.gperf"
-      {"val?", LITH_PRIM_ISVAL,},
-#line 59 "src/prim.gperf"
-      {"print", LITH_PRIM_PRINT,},
-#line 48 "src/prim.gperf"
-      {"mul", LITH_PRIM_MUL,},
-#line 37 "src/prim.gperf"
-      {"call", LITH_PRIM_CALL,},
-#line 56 "src/prim.gperf"
-      {"store", LITH_PRIM_STORE,},
 #line 47 "src/prim.gperf"
-      {"sub", LITH_PRIM_SUB,},
-#line 35 "src/prim.gperf"
-      {"exit", LITH_PRIM_EXIT,},
-#line 54 "src/prim.gperf"
-      {"allot", LITH_PRIM_ALLOT,},
-#line 36 "src/prim.gperf"
-      {"quot", LITH_PRIM_QUOT,},
-#line 39 "src/prim.gperf"
-      {"null?", LITH_PRIM_ISNULL,},
-#line 58 "src/prim.gperf"
-      {"cistore", LITH_PRIM_CISTORE,},
-#line 38 "src/prim.gperf"
-      {"goto", LITH_PRIM_GOTO,},
-#line 57 "src/prim.gperf"
-      {"cifetch", LITH_PRIM_CIFETCH,},
-#line 53 "src/prim.gperf"
-      {"here", LITH_PRIM_HERE,},
-#line 55 "src/prim.gperf"
-      {"fetch", LITH_PRIM_FETCH,},
+      {"add", LITH_PRIM_ADD,},
 #line 44 "src/prim.gperf"
-      {"equal?", LITH_PRIM_ISEQUAL,},
+      {"atom?", LITH_PRIM_ISATOM,},
+#line 52 "src/prim.gperf"
+      {"or", LITH_PRIM_OR,},
+#line 53 "src/prim.gperf"
+      {"xor", LITH_PRIM_XOR,},
+#line 42 "src/prim.gperf"
+      {"ptr?", LITH_PRIM_ISPTR,},
+#line 43 "src/prim.gperf"
+      {"pair?", LITH_PRIM_ISPAIR,},
+#line 50 "src/prim.gperf"
+      {"divmod", LITH_PRIM_DIVMOD,},
+#line 62 "src/prim.gperf"
+      {"cr", LITH_PRIM_CR,},
+#line 51 "src/prim.gperf"
+      {"and", LITH_PRIM_AND,},
+#line 41 "src/prim.gperf"
+      {"val?", LITH_PRIM_ISVAL,},
+#line 61 "src/prim.gperf"
+      {"print", LITH_PRIM_PRINT,},
+#line 49 "src/prim.gperf"
+      {"mul", LITH_PRIM_MUL,},
+#line 38 "src/prim.gperf"
+      {"call", LITH_PRIM_CALL,},
+#line 58 "src/prim.gperf"
+      {"store", LITH_PRIM_STORE,},
+#line 36 "src/prim.gperf"
+      {"exit", LITH_PRIM_EXIT,},
+#line 55 "src/prim.gperf"
+      {"allot", LITH_PRIM_ALLOT,},
+#line 37 "src/prim.gperf"
+      {"quot", LITH_PRIM_QUOT,},
+#line 40 "src/prim.gperf"
+      {"null?", LITH_PRIM_ISNULL,},
+#line 60 "src/prim.gperf"
+      {"cistore", LITH_PRIM_CISTORE,},
+#line 39 "src/prim.gperf"
+      {"goto", LITH_PRIM_GOTO,},
+#line 59 "src/prim.gperf"
+      {"cifetch", LITH_PRIM_CIFETCH,},
+#line 56 "src/prim.gperf"
+      {"bind", LITH_PRIM_BIND,},
+#line 57 "src/prim.gperf"
+      {"fetch", LITH_PRIM_FETCH,},
+#line 48 "src/prim.gperf"
+      {"sub", LITH_PRIM_SUB,},
+#line 54 "src/prim.gperf"
+      {"here", LITH_PRIM_HERE,},
 #line 45 "src/prim.gperf"
+      {"equal?", LITH_PRIM_ISEQUAL,},
+#line 46 "src/prim.gperf"
       {"neg?", LITH_PRIM_ISNEG,}
     };
 
@@ -237,41 +240,44 @@ in_word_set (register const char *str, register size_t len)
               case 17:
                 resword = &wordlist[13];
                 goto compare;
-              case 20:
+              case 21:
                 resword = &wordlist[14];
                 goto compare;
-              case 21:
+              case 22:
                 resword = &wordlist[15];
                 goto compare;
-              case 22:
+              case 26:
                 resword = &wordlist[16];
                 goto compare;
-              case 26:
+              case 27:
                 resword = &wordlist[17];
                 goto compare;
-              case 27:
+              case 29:
                 resword = &wordlist[18];
                 goto compare;
-              case 29:
+              case 31:
                 resword = &wordlist[19];
                 goto compare;
-              case 31:
+              case 34:
                 resword = &wordlist[20];
                 goto compare;
-              case 34:
+              case 36:
                 resword = &wordlist[21];
                 goto compare;
-              case 36:
+              case 37:
                 resword = &wordlist[22];
                 goto compare;
-              case 37:
+              case 40:
                 resword = &wordlist[23];
                 goto compare;
-              case 43:
+              case 41:
                 resword = &wordlist[24];
                 goto compare;
-              case 56:
+              case 43:
                 resword = &wordlist[25];
+                goto compare;
+              case 56:
+                resword = &wordlist[26];
                 goto compare;
             }
           return 0;

@@ -82,6 +82,7 @@ Lith currently has 26 primitives.
 | | `xor` | ( a b -- a^b ) |
 | comma | `here` | ( -- addr ) | Push here-pointer |
 | | `allot` | ( n -- ) | Adjust here-pointer by `n` cells |
+| | `bind` | ( v k -- ) | Bind `v` to `k` in global dictionary |
 | memory access | `fetch` | ( addr -- cell )
 | | `store` | ( cell addr -- ) |
 | | `cifetch` | ( addr offs -- addr byte ) | Fetch `byte` at `offs` bytes from the beginning of the cell at `addr`

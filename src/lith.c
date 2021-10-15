@@ -17,6 +17,7 @@ struct lith_State_s
     CELL *mem;
     int memLimit;
 
+    CELL rLast;
     int rHere;
     int rIP;
 
@@ -34,6 +35,10 @@ lith_State *lith_create(const lith_CreateOptions *opt)
     st->mem = calloc(opt->memLimit, sizeof(CELL));
     st->memLimit = opt->memLimit;
     assert(st->mem);
+
+    st->rLast = LITH_NIL;
+    st->rHere = lith_makePtr(1);
+    st->rIP = LITH_NIL;
 
     st->dataStack = calloc(opt->dataStackLimit, sizeof(CELL));
     st->dataStackLimit = opt->dataStackLimit;
@@ -88,6 +93,41 @@ void lith_dump(lith_State *st)
 
 #define Mem(st, a) ((st)->mem[lith_getValOrPtr(a)])
 
+// Dictionary -------------------------------------------------------------------
+
+#define Comma(st) ((st)->mem[(st)->rHere++])
+
+static CELL lith_cons(lith_State *st, CELL car, CELL cdr)
+{
+    int addr = st->rHere;
+    st->rHere += st->rHere & 1;
+    Comma(st) = car;
+    Comma(st) = cdr;
+    return lith_makePair(addr);
+}
+
+static void lith_bind(lith_State *st, CELL key, CELL val)
+{
+    st->rLast = lith_cons(st, lith_cons(st, key, val), st->rLast);
+}
+
+#define CAR(st, p) Mem(st, p + 0)
+#define CDR(st, p) Mem(st, p + 1)
+
+#define CAAR(st, p) CAR(st, CAR(st, p))
+#define CADR(st, p) CDR(st, CAR(st, p))
+
+static CELL lith_find(lith_State *st, CELL key)
+{
+    for (CELL p = st->rLast; !lith_isNull(p); p = CDR(st, p))
+    {
+        printf("searching at %ld\n", p);
+        if (CAAR(st, p) == key)
+            return CADR(st, p);
+    }
+    return LITH_NIL;
+}
+
 // Inner interpreter ------------------------------------------------------------
 
 static void doQuot(lith_State *st)
@@ -132,6 +172,10 @@ static void doPrintCell(CELL x)
     else if (lith_isVal(x))
     {
         printf("#%ld ", lith_getValOrPtr(x));
+    }
+    else if (lith_isAtom(x))
+    {
+        printf("'%*s ", lith_atomLen(x), lith_atomStr(x));
     }
     else
     {
@@ -226,6 +270,7 @@ void lith_call(lith_State *st, CELL xt)
             // comma
             case LITH_PRIM_HERE: DPush(st) = lith_makePtr(st->rHere); break;
             case LITH_PRIM_ALLOT: st->rHere += lith_getValOrPtr(DPop(st)); break;
+            case LITH_PRIM_BIND: lith_bind(st, DTop(st), DNxt(st)); DPop(st); DPop(st); break;
             // memory access
             case LITH_PRIM_FETCH: DTop(st) = Mem(st, DTop(st)); break; // ( addr -- x )
             case LITH_PRIM_STORE: Mem(st, DTop(st)) = DNxt(st); DPop(st); DPop(st); break; // ( addr x -- )
@@ -292,10 +337,11 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
     }
     case '&': // addr of word
     {
-        assert(0);
-        // CELL a = lith_atomOfStr(word + 1, wordLen - 1);
-        // assert(!lith_isNull(a));
-        // DPush(st) = a;
+        CELL a = lith_atomOfStr(word + 1, wordLen - 1);
+        assert(!lith_isNull(a));
+        CELL b = lith_find(st, a);
+        assert(!lith_isNull(b) && "cannot find word in dictionary");
+        DPush(st) = b;
         break;
     }
     default: // word
