@@ -84,9 +84,18 @@ void lith_dumpMem(lith_State *st)
 
 // Stack operations -----------------------------------------------------------
 
+#define InHalfOpenRange(x, a, b) ((a) <= (x) && (x) < (b))
+
+static inline CELL *peekImpl(lith_State *st, CELL *stack, int ptr, int limit, int n)
+{
+    assert(st);
+    assert(InHalfOpenRange((ptr - n), 0, limit));
+    return &stack[ptr - n];
+}
+
 #define MakePush(prefix, st) ((st)->prefix##Stack[(st)->prefix##StackPtr++])
 #define MakePop(prefix, st) ((st)->prefix##Stack[--(st)->prefix##StackPtr])
-#define MakePeek(prefix, st, n) ((st)->prefix##Stack[(st)->prefix##StackPtr - (n)])
+#define MakePeek(prefix, st, n) (*peekImpl(st, (st)->prefix##Stack, (st)->prefix##StackPtr, (st)->prefix##StackLimit, (n)))
 
 #define DPush(st) MakePush(data, st)
 #define DPop(st) MakePop(data, st)
@@ -207,7 +216,6 @@ static void doCIStore(lith_State *st)
     ((unsigned char *)&Mem(st, addr))[offs] = data;
 }
 
-#define InHalfOpenRange(x, a, b) ((a) <= (x) && (x) < (b))
 #define MakeStackCheck(prefix, st) (InHalfOpenRange((st)->prefix##StackPtr, 0, (st)->prefix##StackLimit))
 
 static struct resword_s *hashAtom(CELL a)
@@ -449,7 +457,8 @@ void lith_interpLine(lith_State *st, const char *line, int lineLen)
     char *word = NULL;
     while ((word = strsep(&linePtr, " \t\n\v\f\r")))
     {
-        if (word[0] == '\\') break;
+        if (word[0] == '\\')
+            break;
         lith_interpWord(st, word, strlen(word));
     }
 }
