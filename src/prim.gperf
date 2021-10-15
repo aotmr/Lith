@@ -1,3 +1,4 @@
+%compare-strncmp
 %includes
 %struct-type
 %{

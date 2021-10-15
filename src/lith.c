@@ -270,7 +270,7 @@ void lith_call(lith_State *st, CELL xt)
             if (!resword)
             {
                 fprintf(stderr, "%016lX\n", xt);
-                fprintf(stderr, "cannot execute primitive %*s\n", lith_atomLen(xt), lith_atomStr(xt));
+                fprintf(stderr, "cannot execute primitive %.*s\n", lith_atomLen(xt), lith_atomStr(xt));
                 assert(0 && "illegal primitive");
             }
             switch (resword->id)
