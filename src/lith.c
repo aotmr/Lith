@@ -205,11 +205,13 @@ static void doPrintCell(CELL x)
     }
 }
 
+#define CIndex(st, addr, offs) (((unsigned char *)&Mem(st, addr))[lith_getValOrPtr(offs)])
+
 static void doCIFetch(lith_State *st)
 {
     CELL offs = DTop(st);
     CELL addr = DNxt(st);
-    DTop(st) = ((unsigned char *)&Mem(st, addr))[offs];
+    DTop(st) = lith_makeVal(CIndex(st, addr, offs));
 }
 
 static void doCIStore(lith_State *st)
@@ -219,7 +221,7 @@ static void doCIStore(lith_State *st)
     CELL addr = DPeek(st, 3);
     DPop(st);
     DPop(st);
-    ((unsigned char *)&Mem(st, addr))[offs] = data;
+    CIndex(st, addr, offs) = lith_getValOrPtr(data) & 0xFFu;
 }
 
 #define MakeStackCheck(prefix, st) (InHalfOpenRange((st)->prefix##StackPtr, 0, (st)->prefix##StackLimit))

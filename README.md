@@ -131,6 +131,12 @@ Primitives are represented by atoms of their name.
 | output | `print` | ( cell -- ) | print a cell in a way that's more useful for debugging than anything
 | | `cr` | ( -- ) | print a newline
 
+#### cifetch, cistore
+
+Those wishing for finely-grained memory access
+should use the **c**haracter **i**ndexed **fetch** and **store** primitives.
+These primitives leave the address on the stack for your convenience.
+
 ## Future
 
 ### Regimes

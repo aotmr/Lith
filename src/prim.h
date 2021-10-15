@@ -29,7 +29,7 @@
 #error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
 #endif
 
-#line 3 "src/prim.gperf"
+#line 4 "src/prim.gperf"
 
 enum {
     LITH_PRIM_EXIT,
@@ -66,7 +66,7 @@ enum {
     LITH_PRIM_PRINT,
     LITH_PRIM_CR,
 };
-#line 40 "src/prim.gperf"
+#line 41 "src/prim.gperf"
 struct resword_s { const char * name; int id; };
 #include <string.h>
 
@@ -138,71 +138,71 @@ in_word_set (register const char *str, register size_t len)
 {
   static struct resword_s wordlist[] =
     {
-#line 58 "src/prim.gperf"
-      {"or", LITH_PRIM_OR,},
-#line 61 "src/prim.gperf"
-      {"over", LITH_PRIM_OVER},
-#line 49 "src/prim.gperf"
-      {"even?", LITH_PRIM_ISPAIR,},
-#line 64 "src/prim.gperf"
-      {"tor", LITH_PRIM_TOR,},
-#line 47 "src/prim.gperf"
-      {"val?", LITH_PRIM_ISVAL,},
-#line 67 "src/prim.gperf"
-      {"allot", LITH_PRIM_ALLOT,},
-#line 74 "src/prim.gperf"
-      {"cr", LITH_PRIM_CR,},
-#line 62 "src/prim.gperf"
-      {"drop", LITH_PRIM_DROP,},
-#line 50 "src/prim.gperf"
-      {"atom?", LITH_PRIM_ISATOM,},
-#line 56 "src/prim.gperf"
-      {"divmod", LITH_PRIM_DIVMOD,},
-#line 55 "src/prim.gperf"
-      {"mul", LITH_PRIM_MUL,},
-#line 44 "src/prim.gperf"
-      {"call", LITH_PRIM_CALL,},
-#line 65 "src/prim.gperf"
-      {"rfrom", LITH_PRIM_RFROM,},
 #line 59 "src/prim.gperf"
-      {"xor", LITH_PRIM_XOR,},
-#line 42 "src/prim.gperf"
-      {"exit", LITH_PRIM_EXIT,},
-#line 69 "src/prim.gperf"
-      {"fetch", LITH_PRIM_FETCH,},
-#line 53 "src/prim.gperf"
-      {"add", LITH_PRIM_ADD,},
-#line 43 "src/prim.gperf"
-      {"quot", LITH_PRIM_QUOT,},
-#line 73 "src/prim.gperf"
-      {"print", LITH_PRIM_PRINT,},
-#line 51 "src/prim.gperf"
-      {"equal?", LITH_PRIM_ISEQUAL,},
-#line 71 "src/prim.gperf"
-      {"cifetch", LITH_PRIM_CIFETCH,},
-#line 57 "src/prim.gperf"
-      {"and", LITH_PRIM_AND,},
+      {"or", LITH_PRIM_OR,},
+#line 62 "src/prim.gperf"
+      {"over", LITH_PRIM_OVER},
+#line 50 "src/prim.gperf"
+      {"even?", LITH_PRIM_ISPAIR,},
+#line 65 "src/prim.gperf"
+      {"tor", LITH_PRIM_TOR,},
 #line 48 "src/prim.gperf"
-      {"ptr?", LITH_PRIM_ISPTR,},
-#line 46 "src/prim.gperf"
-      {"null?", LITH_PRIM_ISNULL,},
-#line 45 "src/prim.gperf"
-      {"goto", LITH_PRIM_GOTO,},
-#line 70 "src/prim.gperf"
-      {"store", LITH_PRIM_STORE,},
-#line 63 "src/prim.gperf"
-      {"nip", LITH_PRIM_NIP,},
+      {"val?", LITH_PRIM_ISVAL,},
 #line 68 "src/prim.gperf"
-      {"bind", LITH_PRIM_BIND,},
-#line 72 "src/prim.gperf"
-      {"cistore", LITH_PRIM_CISTORE,},
-#line 52 "src/prim.gperf"
-      {"neg?", LITH_PRIM_ISNEG,},
-#line 60 "src/prim.gperf"
-      {"dup", LITH_PRIM_DUP,},
+      {"allot", LITH_PRIM_ALLOT,},
+#line 75 "src/prim.gperf"
+      {"cr", LITH_PRIM_CR,},
+#line 63 "src/prim.gperf"
+      {"drop", LITH_PRIM_DROP,},
+#line 51 "src/prim.gperf"
+      {"atom?", LITH_PRIM_ISATOM,},
+#line 57 "src/prim.gperf"
+      {"divmod", LITH_PRIM_DIVMOD,},
+#line 56 "src/prim.gperf"
+      {"mul", LITH_PRIM_MUL,},
+#line 45 "src/prim.gperf"
+      {"call", LITH_PRIM_CALL,},
 #line 66 "src/prim.gperf"
-      {"here", LITH_PRIM_HERE,},
+      {"rfrom", LITH_PRIM_RFROM,},
+#line 60 "src/prim.gperf"
+      {"xor", LITH_PRIM_XOR,},
+#line 43 "src/prim.gperf"
+      {"exit", LITH_PRIM_EXIT,},
+#line 70 "src/prim.gperf"
+      {"fetch", LITH_PRIM_FETCH,},
 #line 54 "src/prim.gperf"
+      {"add", LITH_PRIM_ADD,},
+#line 44 "src/prim.gperf"
+      {"quot", LITH_PRIM_QUOT,},
+#line 74 "src/prim.gperf"
+      {"print", LITH_PRIM_PRINT,},
+#line 52 "src/prim.gperf"
+      {"equal?", LITH_PRIM_ISEQUAL,},
+#line 72 "src/prim.gperf"
+      {"cifetch", LITH_PRIM_CIFETCH,},
+#line 58 "src/prim.gperf"
+      {"and", LITH_PRIM_AND,},
+#line 49 "src/prim.gperf"
+      {"ptr?", LITH_PRIM_ISPTR,},
+#line 47 "src/prim.gperf"
+      {"null?", LITH_PRIM_ISNULL,},
+#line 46 "src/prim.gperf"
+      {"goto", LITH_PRIM_GOTO,},
+#line 71 "src/prim.gperf"
+      {"store", LITH_PRIM_STORE,},
+#line 64 "src/prim.gperf"
+      {"nip", LITH_PRIM_NIP,},
+#line 69 "src/prim.gperf"
+      {"bind", LITH_PRIM_BIND,},
+#line 73 "src/prim.gperf"
+      {"cistore", LITH_PRIM_CISTORE,},
+#line 53 "src/prim.gperf"
+      {"neg?", LITH_PRIM_ISNEG,},
+#line 61 "src/prim.gperf"
+      {"dup", LITH_PRIM_DUP,},
+#line 67 "src/prim.gperf"
+      {"here", LITH_PRIM_HERE,},
+#line 55 "src/prim.gperf"
       {"sub", LITH_PRIM_SUB,}
     };
 
@@ -321,7 +321,7 @@ in_word_set (register const char *str, register size_t len)
           {
             register const char *s = resword->name;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
+            if (*str == *s && !strncmp (str + 1, s + 1, len - 1) && s[len] == '\0')
               return resword;
           }
         }
