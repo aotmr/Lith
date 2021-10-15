@@ -139,6 +139,14 @@ These primitives leave the address on the stack for your convenience.
 
 ## Future
 
+### Sigils
+
+Prospective sigils might include those in this table.
+
+| Sigil | Description |
+|-|-|
+| `?` | Conditional execution |
+
 ### Regimes
 
 We can generalize and unify the ideas of memory and stacks with *regimes*.
