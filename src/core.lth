@@ -22,15 +22,16 @@
 
 \ Control flow
 
-[ ?exit swap ] '?swap bind
-[ rot ?swap nip call ] 'choose bind
+:?swap ?exit ;swap
+:choose rot ?swap nip goto ;
 
-[ here store #1 allot ] 'comma bind
+:comma here store #1 allot ;
 
 \ Fixed-point arithmetic
 
-[ divmod drop ] 'div bind
-[ #1000 ] 'q1 bind
+:div divmod drop ;
+:muldiv tor mul rfrom ;div
+:q1 #1000 ;
 [ q1 mul ] 'toq bind
 [ q1 div ] 'qfrom bind
 [ mul q1 div ] 'q* bind
