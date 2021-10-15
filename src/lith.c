@@ -109,7 +109,13 @@ static inline CELL *peekImpl(lith_State *st, CELL *stack, int ptr, int limit, in
 
 #define Mem(st, a) ((st)->mem[lith_getValOrPtr(a)])
 
-// Dictionary -------------------------------------------------------------------
+/* Dictionary -----------------------------------------------------------------
+
+The dictionary is currently implemented as an associative list using cons cells
+as the basic data structure. The dictionary is present in the image but only
+the interpreter needs to touch it.
+
+*/
 
 #define AlignPair(st) ((st)->rHere += (st)->rHere & 1)
 #define Comma(st) ((st)->mem[(st)->rHere++])
