@@ -37,12 +37,33 @@ by the next least significant bit.
 
 ## Primitives
 
+Lith currently has 26 primitives.
+
 | Category | Name | Arity | Description |
 |-|-|-|-|
-| control flow |
-| type check |
-| comparison |
-| arithmetic, logic |
-| comma |
-| memory access |
-| output |
+| control flow | `exit` | ( -- ) | Return to the callee |
+| | `quot` | ( len -- cell ) | Push a quotation of `len` cells to the stack |
+| | `call` | ( xt -- ) | Call code at `xt`, which can be `Pair` or `Atom` |
+| | `goto` | ( xt -- ) | Tail call to cell at address `xt` (must be a `Pair`) |
+| type check | `null?` | ( cell -- flag ) |
+| | `val?` | ( cell -- flag ) |
+| | `ptr?` | ( cell -- flag ) |
+| | `pair?` | ( cell -- flag ) |
+| | `atom?` | ( cell -- flag ) |
+| comparison | `equal?` | ( a b -- flag ) |
+| | `neg?` | ( a -- flag ) |
+| arithmetic | `add` | ( a b -- a+b ) |
+| | `sub` | ( a b -- a-b ) |
+| | `mul` | ( a b -- a*b) |
+| | `divmod` | ( a b -- a/b a%b ) |
+| bitwise | `and` | ( a b -- a&b ) |
+| | `or` | ( a b -- a\|b ) |
+| | `xor` | ( a b -- a^b ) |
+| comma | `here` | ( -- addr ) |
+| | `allot` | ( n -- ) |
+| memory access | `fetch` | ( addr -- cell )
+| | `store` | ( cell addr -- ) |
+| | `cifetch` | ( addr offs -- addr byte ) | Fetch `byte` at `offs` bytes from the beginning of the cell at `addr`
+| | `cistore` | ( addr offs byte -- addr ) | Store `byte` to `offs` bytes from the beginning of the cell at `addr`
+| output | `print` | ( cell -- ) | Print a cell in a way that's more useful for debugging than anything
+| | `cr` | ( -- ) | Print a newline
