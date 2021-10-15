@@ -106,6 +106,8 @@ const char *lith_exnString(int error)
 
 void lith_throw(lith_State *st, int error)
 {
+    assert(st);
+
     if (st->catchExn)
     {
         longjmp(st->handleExn, error);
@@ -177,7 +179,6 @@ static CELL lith_cons(lith_State *st, CELL car, CELL cdr)
 static void lith_bind(lith_State *st, CELL key, CELL val)
 {
     assert(st);
-    fprintf(stderr, "bound %016lX -> %016lX\n", key, val);
 
     st->rLast = lith_cons(st, lith_cons(st, key, val), st->rLast);
 }
@@ -476,6 +477,10 @@ CELL lith_atomOfStr(const char *str, int strLen)
 
 static CELL lookUpWord(lith_State *st, const char *word, int wordLen)
 {
+    assert(st);
+    assert(word);
+    assert(wordLen >= 0);
+
     CELL atom = lith_atomOfStr(word, wordLen);
     AssertThrow(st, !lith_isNull(atom), LITH_EXN_Error);
     CELL addr = lith_find(st, atom);
@@ -503,6 +508,7 @@ void compileOrCall(lith_State *st, CELL x)
         lith_catch(st, x);
 }
 
+// Interpret a single word
 void lith_interpWord(lith_State *st, char *word, int wordLen)
 {
     assert(st);
@@ -620,6 +626,7 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
     }
 }
 
+// Tokenize and execute a line of code
 void lith_interpLine(lith_State *st, const char *line, int lineLen)
 {
     assert(st);
