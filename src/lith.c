@@ -132,6 +132,7 @@ static inline CELL *peekImpl(lith_State *st, CELL *stack, int ptr, int limit, in
 #define MakePush(prefix, st) ((st)->prefix##Stack[(st)->prefix##StackPtr++])
 #define MakePop(prefix, st) ((st)->prefix##Stack[--(st)->prefix##StackPtr])
 #define MakePeek(prefix, st, n) (*peekImpl(st, (st)->prefix##Stack, (st)->prefix##StackPtr, (st)->prefix##StackLimit, (n)))
+#define MakeStackCheck(prefix, st) (InHalfOpenRange((st)->prefix##StackPtr, 0, (st)->prefix##StackLimit))
 
 #define DPush(st) MakePush(data, st)
 #define DPop(st) MakePop(data, st)
@@ -156,6 +157,12 @@ the interpreter needs to touch it.
 #define AlignEven(st) ((st)->rHere += (st)->rHere & 1)
 #define Comma(st) ((st)->mem[(st)->rHere++])
 
+#define CAR(st, p) Mem(st, p + 0)
+#define CDR(st, p) Mem(st, p + 2)
+
+#define CAAR(st, p) CAR(st, CAR(st, p))
+#define CADR(st, p) CDR(st, CAR(st, p))
+
 static CELL lith_cons(lith_State *st, CELL car, CELL cdr)
 {
     assert(st);
@@ -175,12 +182,6 @@ static void lith_bind(lith_State *st, CELL key, CELL val)
     st->rLast = lith_cons(st, lith_cons(st, key, val), st->rLast);
 }
 
-#define CAR(st, p) Mem(st, p + 0)
-#define CDR(st, p) Mem(st, p + 2)
-
-#define CAAR(st, p) CAR(st, CAR(st, p))
-#define CADR(st, p) CDR(st, CAR(st, p))
-
 static CELL lith_find(lith_State *st, CELL key)
 {
     assert(st);
@@ -195,14 +196,7 @@ static CELL lith_find(lith_State *st, CELL key)
 
 // Inner interpreter ------------------------------------------------------------
 
-static void doQuot(lith_State *st)
-{
-    assert(st);
-
-    CELL len = DTop(st);
-    DTop(st) = st->rIP;
-    st->rIP += lith_getValOrPtr(len);
-}
+#define CIndex(st, addr, offs) (((unsigned char *)&Mem(st, addr))[lith_getValOrPtr(offs)])
 
 #define DoUnaryFn(st, fn) (DTop(st) = fn(DTop(st)))
 #define DoBinaryOp(st, op)                                  \
@@ -212,6 +206,15 @@ static void doQuot(lith_State *st)
         DNxt(st) = (DNxt(st) & ~1) op(DTop(st) & ~1) | tag; \
         DPop(st);                                           \
     } while (0)
+
+static void doQuot(lith_State *st)
+{
+    assert(st);
+
+    CELL len = DTop(st);
+    DTop(st) = st->rIP;
+    st->rIP += lith_getValOrPtr(len);
+}
 
 static void doMul(lith_State *st)
 {
@@ -255,8 +258,6 @@ static void doPrintCell(CELL x)
         printf("$%016lx ", x);
     }
 }
-
-#define CIndex(st, addr, offs) (((unsigned char *)&Mem(st, addr))[lith_getValOrPtr(offs)])
 
 static void doCIFetch(lith_State *st)
 {
@@ -312,8 +313,6 @@ void lith_dumpMem(lith_State *st, FILE *outFile)
         fputc('\n', outFile);
     }
 }
-
-#define MakeStackCheck(prefix, st) (InHalfOpenRange((st)->prefix##StackPtr, 0, (st)->prefix##StackLimit))
 
 static struct resword_s *hashAtom(CELL a)
 {
@@ -473,6 +472,8 @@ CELL lith_atomOfStr(const char *str, int strLen)
 
 // Outer interpreter ----------------------------------------------------------
 
+#define ConstAtom(str) lith_atomOfStr(str, strlen(str))
+
 static CELL lookUpWord(lith_State *st, const char *word, int wordLen)
 {
     CELL atom = lith_atomOfStr(word, wordLen);
@@ -501,8 +502,6 @@ void compileOrCall(lith_State *st, CELL x)
     else
         lith_catch(st, x);
 }
-
-#define ConstAtom(str) lith_atomOfStr(str, strlen(str))
 
 void lith_interpWord(lith_State *st, char *word, int wordLen)
 {
