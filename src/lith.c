@@ -217,7 +217,7 @@ static struct resword_s *hashAtom(CELL a)
     return in_word_set(lith_atomStr(a), lith_atomLen(a));
 }
 
-static void dumpInnerState(lith_State *st, const char * info)
+static void dumpInnerState(lith_State *st, const char *info)
 {
     fprintf(stderr, ERev "IP %08X\tDSP% 4d\tRSP% 4d\t%s\n" EReset, st->rIP, st->dataStackPtr, st->retStackPtr, info);
 }
@@ -399,7 +399,7 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
             CELL fix = DPop(st);
             Comma(st) = lith_atomOfStr("exit", 4);
             Mem(st, fix) = lith_makeVal(st->rHere - lith_getValOrPtr(fix));
-            
+
             --st->iNest;
             assert(st->iNest >= 0);
 
