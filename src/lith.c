@@ -93,6 +93,27 @@ void lith_destroy(lith_State *st)
 // Inner interpreter ------------------------------------------------------------
 
 #define DoUnaryFn(st, fn) (DPeek(st, 1) = fn(DPeek(st, 1)))
+#define DoBinaryOp(st, op)                     \
+    do                                         \
+    {                                          \
+        DPeek(st, 2) op## = DPeek(st, 1) & ~1; \
+        DPop(st);                              \
+    } while (0)
+
+static void doMul(lith_State * st) {
+    CELL a = lith_getValOrPtr(DPeek(st, 1));
+    CELL b = lith_getValOrPtr(DPeek(st, 2));
+    DPeek(st, 2) = lith_makeVal(a * b);
+    DPop(st);
+}
+
+static void doDivMod(lith_State * st) {
+    CELL a = lith_getValOrPtr(DPeek(st, 1));
+    CELL b = lith_getValOrPtr(DPeek(st, 2));
+    ldiv_t result = ldiv(a, b);
+    DPeek(st, 1) = result.quot;
+    DPeek(st, 2) = result.rem;
+}
 
 static void doPrintCell(CELL x)
 {
@@ -154,6 +175,14 @@ void lith_call(lith_State *st, CELL xt)
             case LITH_PRIM_ISPTR: DoUnaryFn(st, lith_isPtr); break;
             case LITH_PRIM_ISPAIR: DoUnaryFn(st, lith_isPair); break;
             case LITH_PRIM_ISATOM: DoUnaryFn(st, lith_isAtom); break;
+            // arithmetic, logic
+            case LITH_PRIM_ADD: DoBinaryOp(st, +); break;
+            case LITH_PRIM_SUB: DoBinaryOp(st, -); break;
+            case LITH_PRIM_MUL: doMul(st); break;
+            case LITH_PRIM_DIVMOD: doDivMod(st); break;
+            case LITH_PRIM_AND: DoBinaryOp(st, &); break;
+            case LITH_PRIM_OR: DoBinaryOp(st, |); break;
+            case LITH_PRIM_XOR: DoBinaryOp(st, ^); break;
             // comma
             case LITH_PRIM_HERE: DPush(st) = lith_makePtr(st->rHere); break;
             case LITH_PRIM_ALLOT: st->rHere += lith_getValOrPtr(DPop(st)); break;
