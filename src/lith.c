@@ -400,23 +400,27 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
         compileOrPush(st, b);
         break;
     }
-    case '[':
+    case '[': // open quotation
     {
         if (wordLen == 1)
         {
             ++st->iNest;
             // compile quotation
-            DPush(st) = lith_makePtr(st->rHere);
+            DPush(st) = lith_makePtr(st->rHere); // fixup address
             Comma(st) = LITH_NIL;
             Comma(st) = lith_atomOfStr("quot", 4);
+
+            // The body must be aligned as a `Pair` for the interpreter to
+            // recognize the address not as an `Atom`. This is why we push
+            // a separate address for the body.
             AlignPair(st);
-            DPush(st) = lith_makePtr(st->rHere);
+            DPush(st) = lith_makePtr(st->rHere); // body address
             break;
         }
         else
             goto default_;
     }
-    case ']':
+    case ']': // close quotation
     {
         if (wordLen == 1)
         {
