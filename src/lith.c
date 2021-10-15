@@ -2,11 +2,12 @@
 #include "prim.h"
 
 #include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
-#include <setjmp.h>
 
 // ANSI escape sequences
 #define EReset "\033[0m"
@@ -80,20 +81,6 @@ void lith_destroy(lith_State *st)
     free(st->dataStack);
     free(st->mem);
     free(st);
-}
-
-void lith_dumpMem(lith_State *st)
-{
-    assert(st);
-
-    for (int i = 0; i < st->rHere && i < st->memLimit; ++i)
-    {
-        if (i % 4 == 0)
-            printf("\n%08X |", i);
-
-        printf("  %016lX", st->mem[i]);
-    }
-    puts("");
 }
 
 // Exceptions -----------------------------------------------------------------
@@ -267,6 +254,40 @@ static void doCIStore(lith_State *st)
     DPop(st);
     DPop(st);
     CIndex(st, addr, offs) = lith_getValOrPtr(data) & 0xFFu;
+}
+
+void lith_dumpMem(lith_State *st)
+{
+    assert(st);
+
+    static const int CELLS_PER_ROW = 4;
+
+    puts("");
+    for (int i = 0; i < st->rHere && i < st->memLimit; i += CELLS_PER_ROW)
+    {
+        printf("%08X |", i);
+        for (int j = 0; j < CELLS_PER_ROW; ++j)
+        {
+            printf("  %016lX", st->mem[i + j]);
+        }
+
+        printf("%s", " | ");
+        // print character data of memory
+        for (int j = 0; j < CELLS_PER_ROW * sizeof(CELL); ++j)
+        {
+            unsigned char c = CIndex(st, lith_makePtr(i), lith_makeVal(j));
+            if (j % sizeof(CELL) == 0)
+                putchar(' ');
+
+            if (isprint(c))
+                putchar(c);
+            else if (iscntrl(c))
+                printf(ERev "%c" EReset, c + ' ');
+            else
+                printf(ERev "." EReset);
+        }
+        puts("");
+    }
 }
 
 #define MakeStackCheck(prefix, st) (InHalfOpenRange((st)->prefix##StackPtr, 0, (st)->prefix##StackLimit))
