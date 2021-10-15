@@ -3,6 +3,7 @@
 %{
 enum {
     LITH_PRIM_EXIT,
+    LITH_PRIM_QUOT,
     LITH_PRIM_CALL,
     LITH_PRIM_GOTO,
     LITH_PRIM_ISNULL,
@@ -21,6 +22,10 @@ enum {
     LITH_PRIM_XOR,
     LITH_PRIM_HERE,
     LITH_PRIM_ALLOT,
+    LITH_PRIM_FETCH,
+    LITH_PRIM_STORE,
+    LITH_PRIM_CIFETCH,
+    LITH_PRIM_CISTORE,
     LITH_PRIM_PRINT,
     LITH_PRIM_CR,
 };
@@ -28,6 +33,7 @@ enum {
 struct resword_s { const char * name; int id; };
 %%
 "exit", LITH_PRIM_EXIT,
+"quot", LITH_PRIM_QUOT,
 "call", LITH_PRIM_CALL,
 "goto", LITH_PRIM_GOTO,
 "null?", LITH_PRIM_ISNULL,
@@ -46,5 +52,9 @@ struct resword_s { const char * name; int id; };
 "xor", LITH_PRIM_XOR,
 "here", LITH_PRIM_HERE,
 "allot", LITH_PRIM_ALLOT,
+"fetch", LITH_PRIM_FETCH,
+"store", LITH_PRIM_STORE,
+"cifetch", LITH_PRIM_CIFETCH,
+"cistore", LITH_PRIM_CISTORE,
 "print", LITH_PRIM_PRINT,
 "cr", LITH_PRIM_CR,

@@ -73,6 +73,13 @@ void lith_destroy(lith_State *st)
 
 // Inner interpreter ------------------------------------------------------------
 
+static void doQuot(lith_State *st)
+{
+    CELL len = DPeek(st, 1);
+    DPeek(st, 1) = st->rIP;
+    st->rIP += len;
+}
+
 #define DoUnaryFn(st, fn) (DPeek(st, 1) = fn(DPeek(st, 1)))
 #define DoBinaryOp(st, op)                     \
     do                                         \
@@ -81,14 +88,16 @@ void lith_destroy(lith_State *st)
         DPop(st);                              \
     } while (0)
 
-static void doMul(lith_State * st) {
+static void doMul(lith_State *st)
+{
     CELL a = lith_getValOrPtr(DPeek(st, 1));
     CELL b = lith_getValOrPtr(DPeek(st, 2));
     DPeek(st, 2) = lith_makeVal(a * b);
     DPop(st);
 }
 
-static void doDivMod(lith_State * st) {
+static void doDivMod(lith_State *st)
+{
     CELL a = lith_getValOrPtr(DPeek(st, 1));
     CELL b = lith_getValOrPtr(DPeek(st, 2));
     ldiv_t result = ldiv(a, b);
@@ -110,6 +119,23 @@ static void doPrintCell(CELL x)
     {
         printf("$%016lx ", x);
     }
+}
+
+static void doCIFetch(lith_State *st)
+{
+    CELL offs = DPeek(st, 1);
+    CELL addr = DPeek(st, 2);
+    DPeek(st, 1) = ((unsigned char *)&Mem(st, addr))[offs];
+}
+
+static void doCIStore(lith_State *st)
+{
+    CELL data = DPeek(st, 1);
+    CELL offs = DPeek(st, 2);
+    CELL addr = DPeek(st, 3);
+    DPop(st);
+    DPop(st);
+    ((unsigned char *)&Mem(st, addr))[offs] = data;
 }
 
 void lith_call(lith_State *st, CELL xt)
@@ -150,6 +176,7 @@ void lith_call(lith_State *st, CELL xt)
             case LITH_PRIM_EXIT: st->rIP = RPop(st); break;
             case LITH_PRIM_CALL: lith_call(st, DPop(st)); break;
             case LITH_PRIM_GOTO: st->rIP = DPop(st); break;
+            case LITH_PRIM_QUOT: doQuot(st); break; // ( len -- addr )
             // type check
             case LITH_PRIM_ISNULL: DoUnaryFn(st, lith_isNull); break;
             case LITH_PRIM_ISVAL: DoUnaryFn(st, lith_isVal); break;
@@ -170,6 +197,11 @@ void lith_call(lith_State *st, CELL xt)
             // comma
             case LITH_PRIM_HERE: DPush(st) = lith_makePtr(st->rHere); break;
             case LITH_PRIM_ALLOT: st->rHere += lith_getValOrPtr(DPop(st)); break;
+            // memory access
+            case LITH_PRIM_FETCH: DPeek(st, 1) = Mem(st, DPeek(st, 1)); break; // ( addr -- x )
+            case LITH_PRIM_STORE: Mem(st, DPeek(st, 1)) = DPeek(st, 2); DPop(st); DPop(st); break; // ( addr x -- )
+            case LITH_PRIM_CIFETCH: doCIFetch(st); break; // ( addr offs -- addr c )
+            case LITH_PRIM_CISTORE: doCIStore(st); break; // ( addr offs c -- addr )
             // output
             case LITH_PRIM_PRINT: doPrintCell(DPop(st)); break;
             case LITH_PRIM_CR: puts(""); break;
