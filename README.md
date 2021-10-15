@@ -16,3 +16,33 @@ for a time scale of, hopefully, only a few hours.
 
 - C99 compiler
 - histedit
+
+# Design
+
+## Cell Tags
+
+Distinct from most Forths,
+Lith has a weak dynamic typing system.
+Cells are signed 64-bit integers with the bottom bit reserved as a tag,
+with `Ptr`s being further distinguished
+by the next least significant bit.
+
+| Type | | Least Sig. Byte | Description |
+|-|-|-|-|
+| `NIL` | | `... 00000000` | (all zeroes) |
+| `Val` | | `... _______1` | Integer |
+| `Ptr` | | `... _______0` | Pointer |
+| can be | `Pair` | `... ______00` | Pointer to secondary |
+| can be | `Atom` | `... ______10` | Short string |
+
+## Primitives
+
+| Category | Name | Arity | Description |
+|-|-|-|-|
+| control flow |
+| type check |
+| comparison |
+| arithmetic, logic |
+| comma |
+| memory access |
+| output |
