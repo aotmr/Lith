@@ -1,9 +1,10 @@
-#!/bin/bash
+#!/bin/sh
+set -e
 
 CC=clang
 CFLAGS="-Wall -O2"
 
-function build {
+build() {
     mkdir -p out
     gperf -S 1 src/prim.gperf > src/prim.h
     $CC $CFLAGS src/lith.c src/main.c -ledit -o out/lith
@@ -12,6 +13,9 @@ function build {
 for command in "$@"
 do
     case $command in
+    check)
+        checkbashisms $0
+        ;;
     build)
         build
         ;;
