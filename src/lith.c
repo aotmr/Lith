@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <string.h>
 #include <setjmp.h>
 
@@ -64,6 +65,8 @@ lith_State *lith_create(const lith_CreateOptions *opt)
 
 void lith_reset(lith_State *st)
 {
+    assert(st);
+
     st->rIP = 0;
     st->dataStackPtr = 0;
     st->retStackPtr = 0;
@@ -93,6 +96,17 @@ void lith_dumpMem(lith_State *st)
     puts("");
 }
 
+// Exceptions -----------------------------------------------------------------
+
+void lith_throw(lith_State *st, int error) {
+    if (st->catchExn)
+        longjmp(st->handleExn, error);
+    else
+        exit(error);
+}
+
+#define AssertThrow(st, expr, error) ((expr) ? (void)0 : lith_throw(st, error))
+
 // Stack operations -----------------------------------------------------------
 
 #define InHalfOpenRange(x, a, b) ((a) <= (x) && (x) < (b))
@@ -100,7 +114,8 @@ void lith_dumpMem(lith_State *st)
 static inline CELL *peekImpl(lith_State *st, CELL *stack, int ptr, int limit, int n)
 {
     assert(st);
-    assert(InHalfOpenRange((ptr - n), 0, limit));
+    
+    AssertThrow(st, InHalfOpenRange((ptr - n), 0, limit), EFAULT);
     return &stack[ptr - n];
 }
 
@@ -133,6 +148,8 @@ the interpreter needs to touch it.
 
 static CELL lith_cons(lith_State *st, CELL car, CELL cdr)
 {
+    assert(st);
+    
     AlignEven(st);
     int addr = st->rHere;
     Comma(st) = car;
@@ -142,6 +159,8 @@ static CELL lith_cons(lith_State *st, CELL car, CELL cdr)
 
 static void lith_bind(lith_State *st, CELL key, CELL val)
 {
+    assert(st);
+
     st->rLast = lith_cons(st, lith_cons(st, key, val), st->rLast);
 }
 
@@ -153,6 +172,8 @@ static void lith_bind(lith_State *st, CELL key, CELL val)
 
 static CELL lith_find(lith_State *st, CELL key)
 {
+    assert(st);
+
     for (CELL p = st->rLast; !lith_isNull(p); p = CDR(st, p))
     {
         if (CAAR(st, p) == key)
@@ -165,6 +186,8 @@ static CELL lith_find(lith_State *st, CELL key)
 
 static void doQuot(lith_State *st)
 {
+    assert(st);
+
     CELL len = DTop(st);
     DTop(st) = st->rIP;
     st->rIP += lith_getValOrPtr(len);
@@ -181,6 +204,8 @@ static void doQuot(lith_State *st)
 
 static void doMul(lith_State *st)
 {
+    assert(st);
+
     CELL a = lith_getValOrPtr(DTop(st));
     CELL b = lith_getValOrPtr(DNxt(st));
     DNxt(st) = lith_makeVal(a * b);
@@ -189,8 +214,12 @@ static void doMul(lith_State *st)
 
 static void doDivMod(lith_State *st)
 {
+    assert(st);
+
     CELL b = lith_getValOrPtr(DTop(st));
     CELL a = lith_getValOrPtr(DNxt(st));
+    AssertThrow(st, b != 0, EDOM); // throw on division by zeor
+
     ldiv_t result = ldiv(a, b);
     DTop(st) = lith_makeVal(result.rem);
     DNxt(st) = lith_makeVal(result.quot);
@@ -220,6 +249,8 @@ static void doPrintCell(CELL x)
 
 static void doCIFetch(lith_State *st)
 {
+    assert(st);
+
     CELL offs = DTop(st);
     CELL addr = DNxt(st);
     DTop(st) = lith_makeVal(CIndex(st, addr, offs));
@@ -227,6 +258,8 @@ static void doCIFetch(lith_State *st)
 
 static void doCIStore(lith_State *st)
 {
+    assert(st);
+
     CELL data = DTop(st);
     CELL offs = DNxt(st);
     CELL addr = DPeek(st, 3);
@@ -246,11 +279,16 @@ static struct resword_s *hashAtom(CELL a)
 
 static void dumpInnerState(lith_State *st, const char *info)
 {
+    assert(st);
+    assert(info);
+    
     fprintf(stderr, ERev "IP %08X\tDSP% 4d\tRSP% 4d\t%s\n" EReset, st->rIP, st->dataStackPtr, st->retStackPtr, info);
 }
 
 void lith_call(lith_State *st, CELL xt)
 {
+    assert(st);
+
     int retStackPtr0 = st->retStackPtr;
     // CALLing a NIL xt does nothing but stepping into it is the same as EXIT
     if (lith_isNull(xt))
@@ -348,6 +386,8 @@ void lith_call(lith_State *st, CELL xt)
 }
 
 int lith_catch(lith_State *st, CELL xt) {
+    assert(st);
+
     bool oldCatchExn = st->catchExn;
     jmp_buf oldHandleExn;
     memcpy(oldHandleExn, st->handleExn, sizeof(jmp_buf));
@@ -357,9 +397,9 @@ int lith_catch(lith_State *st, CELL xt) {
     if (result == 0) {
         lith_call(st, xt);
     } else {
-        fprintf(stderr, "error: caught exception %d", result);
+        fprintf(stderr, "error: caught exception %d, %s\n", result, strerror(result));
     }
-    
+
     st->catchExn = oldCatchExn;
     memcpy(st->handleExn, oldHandleExn, sizeof(jmp_buf));
     return result;
@@ -369,6 +409,9 @@ int lith_catch(lith_State *st, CELL xt) {
 
 CELL lith_atomOfStr(const char *str, int strLen)
 {
+    assert(str);
+    assert(strLen >= 0);
+
     if (strLen > sizeof(CELL) - 1)
         return LITH_NIL;
     CELL c = (strLen << 4) | 2;
@@ -380,6 +423,8 @@ CELL lith_atomOfStr(const char *str, int strLen)
 
 void compileOrPush(lith_State *st, CELL x)
 {
+    assert(st);
+
     if (st->iNest > 0)
         Comma(st) = x | 1;
     else
@@ -388,10 +433,12 @@ void compileOrPush(lith_State *st, CELL x)
 
 void compileOrCall(lith_State *st, CELL x)
 {
+    assert(st);
+
     if (st->iNest > 0)
         Comma(st) = x;
     else
-        lith_call(st, x);
+        lith_catch(st, x);
 }
 
 void lith_interpWord(lith_State *st, char *word, int wordLen)
