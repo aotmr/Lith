@@ -10,6 +10,27 @@ it is missing major functionality and any amount of test code.
 That will not be the case for much longer,
 for a time scale of, hopefully, only a few hours.
 
+## Examples
+
+### Desktop Calculator
+
+With signed 63-bit integers,
+we have more than enough range to do most calculations in fixed point.
+Here's an example of calculating the decimal value
+of an approximation of pi to six digits.
+Notice that this approximation so far matches the digits of pi.
+```
+?#1000000  #355 mul  #113 divmod  print print cr
+#3141592 #104
+```
+Let's increase the precision to nine digits.
+Notice how the approximation begins to diverge
+from the true value of pi after the sixth digit.
+```
+?#1000000000  #355 mul  #113 divmod  print print cr
+#3141592920 #40
+```
+
 ## Building
 
 ### Dependencies
