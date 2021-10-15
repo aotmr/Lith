@@ -6,25 +6,6 @@
 #include <string.h>
 #include <stdio.h>
 
-/*
-#include "utest.h"
-
-UTEST(cell_type, NIL_is_null) { UTEST_EXPECT(lith_isNull(LITH_NIL), true, ==); }
-UTEST(cell_type, NIL_is_not_val) { UTEST_EXPECT(lith_isVal(LITH_NIL), false, ==); }
-UTEST(cell_type, NIL_is_not_ptr) { UTEST_EXPECT(lith_isPtr(LITH_NIL), false, ==); }
-
-UTEST(cell_type, val_is_val) { UTEST_EXPECT(lith_isVal(lith_makeVal(0)), true, ==); }
-UTEST(cell_type, val_is_not_null) { UTEST_EXPECT(lith_isNull(lith_makeVal(0)), false, ==); }
-UTEST(cell_type, val_is_not_ptr) { UTEST_EXPECT(lith_isPtr(lith_makeVal(0)), false, ==); }
-
-UTEST(cell_type, atom_is_atom) { UTEST_EXPECT(lith_isAtom(lith_makeAtom(0)), true, ==); }
-UTEST(cell_type, atom_is_ptr) { UTEST_EXPECT(lith_isPtr(lith_makeAtom(0)), true, ==); }
-UTEST(cell_type, atom_is_not_null) { UTEST_EXPECT(lith_isNull(lith_makeAtom(0)), false, ==); }
-UTEST(cell_type, atom_is_not_val) { UTEST_EXPECT(lith_isVal(lith_makeAtom(0)), false, ==); }
-
-UTEST_MAIN();
-*/
-
 // Stack macros ---------------------------------------------------------------
 
 #define MakeStack(prefix)   \
@@ -175,6 +156,9 @@ void lith_call(lith_State *st, CELL xt)
             case LITH_PRIM_ISPTR: DoUnaryFn(st, lith_isPtr); break;
             case LITH_PRIM_ISPAIR: DoUnaryFn(st, lith_isPair); break;
             case LITH_PRIM_ISATOM: DoUnaryFn(st, lith_isAtom); break;
+            // comparison
+            case LITH_PRIM_ISEQUAL: DPeek(st, 2) = lith_makeVal(-(DPeek(st, 2) == DPeek(st, 1))); DPop(st); break;
+            case LITH_PRIM_ISNEG: DPeek(st, 1) = lith_makeVal(-(DPeek(st, 1) < 0)); break;
             // arithmetic, logic
             case LITH_PRIM_ADD: DoBinaryOp(st, +); break;
             case LITH_PRIM_SUB: DoBinaryOp(st, -); break;
