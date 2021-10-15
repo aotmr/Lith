@@ -181,8 +181,8 @@ static void doDivMod(lith_State *st)
     CELL b = lith_getValOrPtr(DTop(st));
     CELL a = lith_getValOrPtr(DNxt(st));
     ldiv_t result = ldiv(a, b);
-    DTop(st) = lith_makeVal(result.quot);
-    DNxt(st) = lith_makeVal(result.rem);
+    DTop(st) = lith_makeVal(result.rem);
+    DNxt(st) = lith_makeVal(result.quot);
 }
 
 static void doPrintCell(CELL x)

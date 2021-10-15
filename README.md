@@ -42,15 +42,15 @@ Here's an example of calculating the decimal value
 of an approximation of pi to six digits.
 Notice that this approximation so far matches the digits of pi.
 ```
-? #1000000  #355 mul  #113 divmod  print print
-#3141592 #104 ok.
+? #1000000  #355 mul  #113 divmod  drop print
+#3141592 ok.
 ```
 Let's increase the precision to nine digits.
 Notice how the approximation begins to diverge
 from the true value of pi after the sixth digit.
 ```
-? #1000000000  #355 mul  #113 divmod  print print
-#3141592920 #40 ok.
+? #1000000000  #355 mul  #113 divmod  drop print
+#3141592920 ok.
 ```
 
 With quotations and bindings,

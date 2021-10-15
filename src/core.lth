@@ -13,3 +13,13 @@
 [ drop drop ] '2drop bind
 [ tor tor 2dup rfrom rfrom 2swap ] '2over bind
 [ tor rrot rfrom rrot ] '2swap bind
+
+[ here store #1 allot ] 'comma bind
+
+\ Fixed-point arithmetic
+
+[ divmod drop ] 'div bind
+[ #1000 ] 'q1 bind
+[ q1 mul ] 'toq bind
+[ q1 div ] 'qfrom bind
+[ mul q1 div ] 'q* bind
