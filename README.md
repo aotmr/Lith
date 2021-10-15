@@ -86,16 +86,21 @@ by the next least significant bit.
 | can be | `Pair` | `... ______00` | Pointer to secondary |
 | can be | `Atom` | `... ______10` | Short string |
 
+This representation is sure to change in the future.
+For example, given the berth a 64-bit word offers us,
+we might use the *upper* bits of a cell to further annotate it.
+
 ### Primitives
 
-Lith currently has 26 primitives.
+Lith currently has 33 primitives.
+Primitives are represented by atoms of their name.
 
 | Category | Name | Arity | Description |
 |-|-|-|-|
-| control flow | `exit` | ( -- ) | Return to the callee |
-| | `quot` | ( len -- cell ) | Push a quotation of `len` cells to the stack |
-| | `call` | ( xt -- ) | Call code at `xt`, which can be `Pair` or `Atom` |
-| | `goto` | ( xt -- ) | Tail call to cell at address `xt` (must be a `Pair`) |
+| control flow | `exit` | ( -- ) | return to the callee |
+| | `quot` | ( len -- cell ) | push a quotation of `len` cells to the stack |
+| | `call` | ( xt -- ) | call code at `xt`, which can be `Pair` or `Atom` |
+| | `goto` | ( xt -- ) | tail call to cell at address `xt` (must be a `Pair`) |
 | type check | `null?` | ( cell -- flag ) |
 | | `val?` | ( cell -- flag ) |
 | | `ptr?` | ( cell -- flag ) |
@@ -117,14 +122,14 @@ Lith currently has 26 primitives.
 | | `>r` | ( x -- R:x ) | transfer value from return to data stack
 | | `r>` | ( R:x -- x ) | transfer values from data to return stack
 | comma | `here` | ( -- addr ) | Push here-pointer |
-| | `allot` | ( n -- ) | Adjust here-pointer by `n` cells |
-| | `bind` | ( v k -- ) | Bind `v` to `k` in global dictionary |
+| | `allot` | ( n -- ) | adjust here-pointer by `n` cells |
+| | `bind` | ( v k -- ) | bind `v` to `k` in global dictionary |
 | memory access | `fetch` | ( addr -- cell )
 | | `store` | ( cell addr -- ) |
-| | `cifetch` | ( addr offs -- addr byte ) | Fetch `byte` at `offs` bytes from the beginning of the cell at `addr`
-| | `cistore` | ( addr offs byte -- addr ) | Store `byte` to `offs` bytes from the beginning of the cell at `addr`
-| output | `print` | ( cell -- ) | Print a cell in a way that's more useful for debugging than anything
-| | `cr` | ( -- ) | Print a newline
+| | `cifetch` | ( addr offs -- addr byte ) | fetch `byte` at `offs` bytes from the beginning of the cell at `addr`
+| | `cistore` | ( addr offs byte -- addr ) | store `byte` to `offs` bytes from the beginning of the cell at `addr`
+| output | `print` | ( cell -- ) | print a cell in a way that's more useful for debugging than anything
+| | `cr` | ( -- ) | print a newline
 
 ## To-Do
 
