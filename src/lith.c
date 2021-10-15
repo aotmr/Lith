@@ -20,6 +20,8 @@
 #define DPush(st) MakePush(data, st)
 #define DPop(st) MakePop(data, st)
 #define DPeek(st, n) MakePeek(data, st, n)
+#define DTop(st) DPeek(st, 1)
+#define DNxt(st) DPeek(st, 2)
 
 #define RPush(st) MakePush(ret, st)
 #define RPop(st) MakePop(ret, st)
@@ -75,34 +77,34 @@ void lith_destroy(lith_State *st)
 
 static void doQuot(lith_State *st)
 {
-    CELL len = DPeek(st, 1);
-    DPeek(st, 1) = st->rIP;
+    CELL len = DTop(st);
+    DTop(st) = st->rIP;
     st->rIP += len;
 }
 
-#define DoUnaryFn(st, fn) (DPeek(st, 1) = fn(DPeek(st, 1)))
+#define DoUnaryFn(st, fn) (DTop(st) = fn(DTop(st)))
 #define DoBinaryOp(st, op)                     \
     do                                         \
     {                                          \
-        DPeek(st, 2) op## = DPeek(st, 1) & ~1; \
+        DNxt(st) op## = DTop(st) & ~1; \
         DPop(st);                              \
     } while (0)
 
 static void doMul(lith_State *st)
 {
-    CELL a = lith_getValOrPtr(DPeek(st, 1));
-    CELL b = lith_getValOrPtr(DPeek(st, 2));
-    DPeek(st, 2) = lith_makeVal(a * b);
+    CELL a = lith_getValOrPtr(DTop(st));
+    CELL b = lith_getValOrPtr(DNxt(st));
+    DNxt(st) = lith_makeVal(a * b);
     DPop(st);
 }
 
 static void doDivMod(lith_State *st)
 {
-    CELL a = lith_getValOrPtr(DPeek(st, 1));
-    CELL b = lith_getValOrPtr(DPeek(st, 2));
+    CELL a = lith_getValOrPtr(DTop(st));
+    CELL b = lith_getValOrPtr(DNxt(st));
     ldiv_t result = ldiv(a, b);
-    DPeek(st, 1) = result.quot;
-    DPeek(st, 2) = result.rem;
+    DTop(st) = result.quot;
+    DNxt(st) = result.rem;
 }
 
 static void doPrintCell(CELL x)
@@ -123,15 +125,15 @@ static void doPrintCell(CELL x)
 
 static void doCIFetch(lith_State *st)
 {
-    CELL offs = DPeek(st, 1);
-    CELL addr = DPeek(st, 2);
-    DPeek(st, 1) = ((unsigned char *)&Mem(st, addr))[offs];
+    CELL offs = DTop(st);
+    CELL addr = DNxt(st);
+    DTop(st) = ((unsigned char *)&Mem(st, addr))[offs];
 }
 
 static void doCIStore(lith_State *st)
 {
-    CELL data = DPeek(st, 1);
-    CELL offs = DPeek(st, 2);
+    CELL data = DTop(st);
+    CELL offs = DNxt(st);
     CELL addr = DPeek(st, 3);
     DPop(st);
     DPop(st);
@@ -184,8 +186,8 @@ void lith_call(lith_State *st, CELL xt)
             case LITH_PRIM_ISPAIR: DoUnaryFn(st, lith_isPair); break;
             case LITH_PRIM_ISATOM: DoUnaryFn(st, lith_isAtom); break;
             // comparison
-            case LITH_PRIM_ISEQUAL: DPeek(st, 2) = lith_makeVal(-(DPeek(st, 2) == DPeek(st, 1))); DPop(st); break;
-            case LITH_PRIM_ISNEG: DPeek(st, 1) = lith_makeVal(-(DPeek(st, 1) < 0)); break;
+            case LITH_PRIM_ISEQUAL: DNxt(st) = lith_makeVal(-(DNxt(st) == DTop(st))); DPop(st); break;
+            case LITH_PRIM_ISNEG: DTop(st) = lith_makeVal(-(DTop(st) < 0)); break;
             // arithmetic, logic
             case LITH_PRIM_ADD: DoBinaryOp(st, +); break;
             case LITH_PRIM_SUB: DoBinaryOp(st, -); break;
@@ -198,8 +200,8 @@ void lith_call(lith_State *st, CELL xt)
             case LITH_PRIM_HERE: DPush(st) = lith_makePtr(st->rHere); break;
             case LITH_PRIM_ALLOT: st->rHere += lith_getValOrPtr(DPop(st)); break;
             // memory access
-            case LITH_PRIM_FETCH: DPeek(st, 1) = Mem(st, DPeek(st, 1)); break; // ( addr -- x )
-            case LITH_PRIM_STORE: Mem(st, DPeek(st, 1)) = DPeek(st, 2); DPop(st); DPop(st); break; // ( addr x -- )
+            case LITH_PRIM_FETCH: DTop(st) = Mem(st, DTop(st)); break; // ( addr -- x )
+            case LITH_PRIM_STORE: Mem(st, DTop(st)) = DNxt(st); DPop(st); DPop(st); break; // ( addr x -- )
             case LITH_PRIM_CIFETCH: doCIFetch(st); break; // ( addr offs -- addr c )
             case LITH_PRIM_CISTORE: doCIStore(st); break; // ( addr offs c -- addr )
             // output
