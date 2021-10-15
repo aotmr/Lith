@@ -449,6 +449,7 @@ void lith_interpLine(lith_State *st, const char *line, int lineLen)
     char *word = NULL;
     while ((word = strsep(&linePtr, " \t\n\v\f\r")))
     {
+        if (word[0] == '\\') break;
         lith_interpWord(st, word, strlen(word));
     }
 }

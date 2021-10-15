@@ -1,6 +1,13 @@
+\ We can implement all stack manipulation words with out few primitives,
+\ and certainly even fewer than those.
+
 [ over tor nip rfrom ] 'swap bind
 [ tor swap rfrom swap ] 'rot bind
 [ rot rot ] 'rrot bind
+
+\ These are more to test deep word nesting than anything--the usefulness of
+\ double cells is increasingly diminished at wider word lengths, but it does
+\ allow for shuffling entire cons cells around on the stack.
 
 [ over over ] '2dup bind
 [ drop drop ] '2drop bind
