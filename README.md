@@ -5,10 +5,13 @@ recounting many of its ideas
 (predominantly that of having typed memory cells),
 but written in C instead of Awk.
 
-In its current state, Lith is not only not Turing-complete,
-it is missing major functionality and any amount of test code.
-That will not be the case for much longer,
-for a time scale of, hopefully, only a few hours.
+Lith is technically Turing-complete,
+but in its current state,
+it is missing major functionality and any decent amount of test code.
+Atoms are limited to seven characters.
+
+These limitations will not be the case for much longer,
+over a time scale of, hopefully, only a few days.
 
 ## Syntax
 
@@ -39,15 +42,23 @@ Here's an example of calculating the decimal value
 of an approximation of pi to six digits.
 Notice that this approximation so far matches the digits of pi.
 ```
-?#1000000  #355 mul  #113 divmod  print print cr
-#3141592 #104
+? #1000000  #355 mul  #113 divmod  print print
+#3141592 #104 ok.
 ```
 Let's increase the precision to nine digits.
 Notice how the approximation begins to diverge
 from the true value of pi after the sixth digit.
 ```
-?#1000000000  #355 mul  #113 divmod  print print cr
-#3141592920 #40
+? #1000000000  #355 mul  #113 divmod  print print
+#3141592920 #40 ok.
+```
+
+With quotations and bindings,
+we can define our own words.
+```
+? [ dup dup mul ] 'cube bind
+? #3 cube print
+#27 ok.
 ```
 
 ## Building
@@ -99,6 +110,12 @@ Lith currently has 26 primitives.
 | bitwise | `and` | ( a b -- a&b ) |
 | | `or` | ( a b -- a\|b ) |
 | | `xor` | ( a b -- a^b ) |
+| stack manipulation | `dup` | ( a -- a a ) | duplicate top stack item
+| | `over` | ( a b -- a b a ) | copy second stack item to top
+| | `drop` | ( a -- ) | discard top stack item
+| | `nip` | ( a b -- b ) | discard second stack item
+| | `>r` | ( x -- R:x ) | transfer value from return to data stack
+| | `r>` | ( R:x -- x ) | transfer values from data to return stack
 | comma | `here` | ( -- addr ) | Push here-pointer |
 | | `allot` | ( n -- ) | Adjust here-pointer by `n` cells |
 | | `bind` | ( v k -- ) | Bind `v` to `k` in global dictionary |
