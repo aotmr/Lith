@@ -98,7 +98,8 @@ void lith_dumpMem(lith_State *st)
 
 // Exceptions -----------------------------------------------------------------
 
-void lith_throw(lith_State *st, int error) {
+void lith_throw(lith_State *st, int error)
+{
     if (st->catchExn)
         longjmp(st->handleExn, error);
     else
@@ -114,7 +115,7 @@ void lith_throw(lith_State *st, int error) {
 static inline CELL *peekImpl(lith_State *st, CELL *stack, int ptr, int limit, int n)
 {
     assert(st);
-    
+
     AssertThrow(st, InHalfOpenRange((ptr - n), 0, limit), EFAULT);
     return &stack[ptr - n];
 }
@@ -149,7 +150,7 @@ the interpreter needs to touch it.
 static CELL lith_cons(lith_State *st, CELL car, CELL cdr)
 {
     assert(st);
-    
+
     AlignEven(st);
     int addr = st->rHere;
     Comma(st) = car;
@@ -281,7 +282,7 @@ static void dumpInnerState(lith_State *st, const char *info)
 {
     assert(st);
     assert(info);
-    
+
     fprintf(stderr, ERev "IP %08X\tDSP% 4d\tRSP% 4d\t%s\n" EReset, st->rIP, st->dataStackPtr, st->retStackPtr, info);
 }
 
@@ -388,7 +389,8 @@ void lith_call(lith_State *st, CELL xt)
     assert(MakeStackCheck(data, st));
 }
 
-int lith_catch(lith_State *st, CELL xt) {
+int lith_catch(lith_State *st, CELL xt)
+{
     assert(st);
 
     bool oldCatchExn = st->catchExn;
@@ -397,9 +399,12 @@ int lith_catch(lith_State *st, CELL xt) {
 
     st->catchExn = true;
     int result = setjmp(st->handleExn);
-    if (result == 0) {
+    if (result == 0)
+    {
         lith_call(st, xt);
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "error: caught exception %d, %s\n", result, strerror(result));
     }
 
@@ -424,6 +429,16 @@ CELL lith_atomOfStr(const char *str, int strLen)
 
 // Outer interpreter ----------------------------------------------------------
 
+static CELL lookUpWord(lith_State *st, const char *word, int wordLen)
+{
+    CELL atom = lith_atomOfStr(word, wordLen);
+    AssertThrow(st, !lith_isNull(atom), EPERM);
+
+    CELL addr = lith_find(st, atom);
+    AssertThrow(st, !lith_isNull(addr), EPERM);
+    return addr;
+}
+
 void compileOrPush(lith_State *st, CELL x)
 {
     assert(st);
@@ -443,6 +458,8 @@ void compileOrCall(lith_State *st, CELL x)
     else
         lith_catch(st, x);
 }
+
+#define ConstAtom(str) lith_atomOfStr(str, strlen(str))
 
 void lith_interpWord(lith_State *st, char *word, int wordLen)
 {
@@ -474,11 +491,40 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
     }
     case '&': // addr of word
     {
-        CELL a = lith_atomOfStr(word + 1, wordLen - 1);
-        assert(!lith_isNull(a));
-        CELL b = lith_find(st, a);
-        assert(!lith_isNull(b) && "cannot find word in dictionary");
-        compileOrPush(st, b);
+        CELL addr = lookUpWord(st, word + 1, wordLen - 1);
+        compileOrPush(st, addr);
+        break;
+    }
+    case ':': // easy binding
+    {
+        AssertThrow(st, st->iNest == 0, EPERM);
+        ++st->iNest;
+
+        CELL atom = lith_atomOfStr(word + 1, wordLen - 1);
+        DPush(st) = atom;
+
+        AlignEven(st);
+        DPush(st) = lith_makePtr(st->rHere);
+        break;
+    }
+    case ';': // exit or tail call
+    {
+        AssertThrow(st, st->iNest == 1, EPERM);
+        CELL addr = DPop(st);
+        CELL atom = DPop(st);
+        lith_bind(st, addr, atom);
+
+        if (wordLen == 1)
+        {
+            Comma(st) = ConstAtom("exit");
+        }
+        else
+        {
+            AssertThrow(st, lith_isPtr(addr), EDOM);
+            Comma(st) = lith_toVal(addr);
+            Comma(st) = ConstAtom("goto");
+        }
+        --st->iNest;
         break;
     }
     case '[': // open quotation
@@ -489,7 +535,7 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
             // compile quotation
             DPush(st) = lith_makePtr(st->rHere); // fixup address
             Comma(st) = LITH_NIL;
-            Comma(st) = lith_atomOfStr("quot", 4);
+            Comma(st) = ConstAtom("quot");
 
             // The body must be aligned as a `Even` for the interpreter to
             // recognize the address not as an `Atom`. This is why we push
@@ -507,7 +553,7 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
         {
             CELL body = DPop(st);
             CELL fix = DPop(st);
-            Comma(st) = lith_atomOfStr("exit", 4);
+            Comma(st) = ConstAtom("exit");
             Mem(st, fix) = lith_makeVal(st->rHere - lith_getValOrPtr(fix));
 
             --st->iNest;

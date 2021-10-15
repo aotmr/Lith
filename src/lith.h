@@ -42,6 +42,8 @@ static inline CELL lith_makePtr(CELL x) { return (x << 1) | 0; }
 static inline CELL lith_makeEven(CELL x) { return (x << 1) | 0; }
 static inline CELL lith_makeAtom(CELL x) { return (x << 1) | 2; }
 
+static inline CELL lith_toVal(CELL x) { return x | 1; }
+
 // Cell decoding --------------------------------------------------------------
 
 // Remove bottom bit to decode value

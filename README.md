@@ -31,6 +31,8 @@ An initial sigil dictates how the parser interprets the rest of a word.
 | `'` | Push atom, underscores replaced with spaces. |
 | `#` | Push literal |
 | `&` | Push address of word |
+| `:` | Easy binding |
+| `;` | Exit or tail call |
 
 ## Examples
 
@@ -101,6 +103,8 @@ Primitives are represented by atoms of their name.
 | | `quot` | ( len -- cell ) | push a quotation of `len` cells to the stack |
 | | `call` | ( xt -- ) | call code at `xt`, which can be `Even` or `Atom` |
 | | `goto` | ( xt -- ) | tail call to cell at address `xt` (must be a `Even`) |
+| | `throw` | ( exc -- ) | throw an exception with the number `exc` |
+| | `catch` | ( xt -- exc ) | call code at `xt`, catching thrown exceptions |
 | type check | `null?` | ( cell -- flag ) |
 | | `val?` | ( cell -- flag ) |
 | | `ptr?` | ( cell -- flag ) |
