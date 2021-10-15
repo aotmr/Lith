@@ -329,9 +329,12 @@ void lith_call(lith_State *st, CELL xt)
             // clang-format off
             // control flow
             case LITH_PRIM_EXIT: st->rIP = RPop(st); break;
-            case LITH_PRIM_CALL: RPush(st) = st->rIP; st->rIP = DPop(st); break;
+            case LITH_PRIM_IFEXIT: if (lith_getValOrPtr(RPop(st))) st->rIP = RPop(st); break;
+            case LITH_PRIM_CALL: lith_call(st, DPop(st)); break;
             case LITH_PRIM_GOTO: st->rIP = DPop(st); break;
             case LITH_PRIM_QUOT: doQuot(st); break; // ( len -- addr )
+            case LITH_PRIM_THROW: lith_throw(st, lith_getValOrPtr(DPop(st))); break;
+            case LITH_PRIM_CATCH: DTop(st) = lith_catch(st, DTop(st)); break;
             // type check
             case LITH_PRIM_ISNULL: DoUnaryFn(st, lith_isNull); break;
             case LITH_PRIM_ISVAL: DoUnaryFn(st, lith_isVal); break;

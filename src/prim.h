@@ -33,9 +33,12 @@
 
 enum {
     LITH_PRIM_EXIT,
+    LITH_PRIM_IFEXIT,
     LITH_PRIM_QUOT,
     LITH_PRIM_CALL,
     LITH_PRIM_GOTO,
+    LITH_PRIM_THROW,
+    LITH_PRIM_CATCH,
     LITH_PRIM_ISNULL,
     LITH_PRIM_ISVAL,
     LITH_PRIM_ISPTR,
@@ -66,16 +69,16 @@ enum {
     LITH_PRIM_PRINT,
     LITH_PRIM_CR,
 };
-#line 41 "src/prim.gperf"
+#line 44 "src/prim.gperf"
 struct resword_s { const char * name; int id; };
 #include <string.h>
 
-#define TOTAL_KEYWORDS 33
+#define TOTAL_KEYWORDS 35
 #define MIN_WORD_LENGTH 2
 #define MAX_WORD_LENGTH 7
-#define MIN_HASH_VALUE 2
-#define MAX_HASH_VALUE 73
-/* maximum key range = 72, duplicates = 0 */
+#define MIN_HASH_VALUE 4
+#define MAX_HASH_VALUE 78
+/* maximum key range = 75, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
@@ -89,32 +92,32 @@ hash (register const char *str, register size_t len)
 {
   static unsigned char asso_values[] =
     {
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74,  5, 25, 10,
-      10,  0, 15, 30, 50,  0, 74, 74,  0,  0,
-      15,  0, 25, 10,  0, 30,  5, 15,  0, 74,
-      20, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74, 74, 74, 74, 74,
-      74, 74, 74, 74, 74, 74
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 40, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79,  5, 30, 10,
+      10,  0, 10, 35, 35,  0, 79, 79,  5,  0,
+      15,  0, 20, 20,  5, 35,  0, 10,  0, 79,
+       5, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79, 79, 79, 79, 79,
+      79, 79, 79, 79, 79, 79
     };
   register unsigned int hval = len;
 
@@ -138,71 +141,75 @@ in_word_set (register const char *str, register size_t len)
 {
   static struct resword_s wordlist[] =
     {
-#line 59 "src/prim.gperf"
-      {"or", LITH_PRIM_OR,},
-#line 62 "src/prim.gperf"
-      {"over", LITH_PRIM_OVER},
-#line 50 "src/prim.gperf"
-      {"even?", LITH_PRIM_ISPAIR,},
-#line 65 "src/prim.gperf"
-      {"tor", LITH_PRIM_TOR,},
-#line 48 "src/prim.gperf"
-      {"val?", LITH_PRIM_ISVAL,},
-#line 68 "src/prim.gperf"
-      {"allot", LITH_PRIM_ALLOT,},
-#line 75 "src/prim.gperf"
-      {"cr", LITH_PRIM_CR,},
-#line 63 "src/prim.gperf"
-      {"drop", LITH_PRIM_DROP,},
-#line 51 "src/prim.gperf"
-      {"atom?", LITH_PRIM_ISATOM,},
-#line 57 "src/prim.gperf"
-      {"divmod", LITH_PRIM_DIVMOD,},
-#line 56 "src/prim.gperf"
-      {"mul", LITH_PRIM_MUL,},
-#line 45 "src/prim.gperf"
-      {"call", LITH_PRIM_CALL,},
-#line 66 "src/prim.gperf"
-      {"rfrom", LITH_PRIM_RFROM,},
-#line 60 "src/prim.gperf"
-      {"xor", LITH_PRIM_XOR,},
-#line 43 "src/prim.gperf"
-      {"exit", LITH_PRIM_EXIT,},
-#line 70 "src/prim.gperf"
-      {"fetch", LITH_PRIM_FETCH,},
-#line 54 "src/prim.gperf"
-      {"add", LITH_PRIM_ADD,},
-#line 44 "src/prim.gperf"
-      {"quot", LITH_PRIM_QUOT,},
-#line 74 "src/prim.gperf"
-      {"print", LITH_PRIM_PRINT,},
-#line 52 "src/prim.gperf"
-      {"equal?", LITH_PRIM_ISEQUAL,},
-#line 72 "src/prim.gperf"
-      {"cifetch", LITH_PRIM_CIFETCH,},
-#line 58 "src/prim.gperf"
-      {"and", LITH_PRIM_AND,},
-#line 49 "src/prim.gperf"
-      {"ptr?", LITH_PRIM_ISPTR,},
-#line 47 "src/prim.gperf"
-      {"null?", LITH_PRIM_ISNULL,},
-#line 46 "src/prim.gperf"
-      {"goto", LITH_PRIM_GOTO,},
-#line 71 "src/prim.gperf"
-      {"store", LITH_PRIM_STORE,},
-#line 64 "src/prim.gperf"
-      {"nip", LITH_PRIM_NIP,},
-#line 69 "src/prim.gperf"
-      {"bind", LITH_PRIM_BIND,},
-#line 73 "src/prim.gperf"
-      {"cistore", LITH_PRIM_CISTORE,},
-#line 53 "src/prim.gperf"
-      {"neg?", LITH_PRIM_ISNEG,},
-#line 61 "src/prim.gperf"
-      {"dup", LITH_PRIM_DUP,},
 #line 67 "src/prim.gperf"
-      {"here", LITH_PRIM_HERE,},
+      {"over", LITH_PRIM_OVER},
 #line 55 "src/prim.gperf"
+      {"even?", LITH_PRIM_ISPAIR,},
+#line 64 "src/prim.gperf"
+      {"or", LITH_PRIM_OR,},
+#line 70 "src/prim.gperf"
+      {"tor", LITH_PRIM_TOR,},
+#line 46 "src/prim.gperf"
+      {"exit", LITH_PRIM_EXIT,},
+#line 56 "src/prim.gperf"
+      {"atom?", LITH_PRIM_ISATOM,},
+#line 65 "src/prim.gperf"
+      {"xor", LITH_PRIM_XOR,},
+#line 53 "src/prim.gperf"
+      {"val?", LITH_PRIM_ISVAL,},
+#line 75 "src/prim.gperf"
+      {"fetch", LITH_PRIM_FETCH,},
+#line 62 "src/prim.gperf"
+      {"divmod", LITH_PRIM_DIVMOD,},
+#line 80 "src/prim.gperf"
+      {"cr", LITH_PRIM_CR,},
+#line 61 "src/prim.gperf"
+      {"mul", LITH_PRIM_MUL,},
+#line 68 "src/prim.gperf"
+      {"drop", LITH_PRIM_DROP,},
+#line 73 "src/prim.gperf"
+      {"allot", LITH_PRIM_ALLOT,},
+#line 49 "src/prim.gperf"
+      {"call", LITH_PRIM_CALL,},
+#line 71 "src/prim.gperf"
+      {"rfrom", LITH_PRIM_RFROM,},
+#line 77 "src/prim.gperf"
+      {"cifetch", LITH_PRIM_CIFETCH,},
+#line 59 "src/prim.gperf"
+      {"add", LITH_PRIM_ADD,},
+#line 54 "src/prim.gperf"
+      {"ptr?", LITH_PRIM_ISPTR,},
+#line 79 "src/prim.gperf"
+      {"print", LITH_PRIM_PRINT,},
+#line 63 "src/prim.gperf"
+      {"and", LITH_PRIM_AND,},
+#line 48 "src/prim.gperf"
+      {"quot", LITH_PRIM_QUOT,},
+#line 52 "src/prim.gperf"
+      {"null?", LITH_PRIM_ISNULL,},
+#line 57 "src/prim.gperf"
+      {"equal?", LITH_PRIM_ISEQUAL,},
+#line 69 "src/prim.gperf"
+      {"nip", LITH_PRIM_NIP,},
+#line 50 "src/prim.gperf"
+      {"goto", LITH_PRIM_GOTO,},
+#line 76 "src/prim.gperf"
+      {"store", LITH_PRIM_STORE,},
+#line 66 "src/prim.gperf"
+      {"dup", LITH_PRIM_DUP,},
+#line 72 "src/prim.gperf"
+      {"here", LITH_PRIM_HERE,},
+#line 51 "src/prim.gperf"
+      {"throw", LITH_PRIM_THROW,},
+#line 74 "src/prim.gperf"
+      {"bind", LITH_PRIM_BIND,},
+#line 47 "src/prim.gperf"
+      {"?exit", LITH_PRIM_IFEXIT,},
+#line 78 "src/prim.gperf"
+      {"cistore", LITH_PRIM_CISTORE,},
+#line 58 "src/prim.gperf"
+      {"neg?", LITH_PRIM_ISNEG,},
+#line 60 "src/prim.gperf"
       {"sub", LITH_PRIM_SUB,}
     };
 
@@ -214,106 +221,112 @@ in_word_set (register const char *str, register size_t len)
         {
           register struct resword_s *resword;
 
-          switch (key - 2)
+          switch (key - 4)
             {
               case 0:
                 resword = &wordlist[0];
                 goto compare;
-              case 2:
+              case 1:
                 resword = &wordlist[1];
                 goto compare;
               case 3:
                 resword = &wordlist[2];
                 goto compare;
-              case 6:
+              case 4:
                 resword = &wordlist[3];
                 goto compare;
-              case 7:
+              case 5:
                 resword = &wordlist[4];
                 goto compare;
-              case 8:
+              case 6:
                 resword = &wordlist[5];
                 goto compare;
-              case 10:
+              case 9:
                 resword = &wordlist[6];
                 goto compare;
-              case 12:
+              case 10:
                 resword = &wordlist[7];
                 goto compare;
-              case 13:
+              case 11:
                 resword = &wordlist[8];
                 goto compare;
-              case 14:
+              case 12:
                 resword = &wordlist[9];
                 goto compare;
-              case 16:
+              case 13:
                 resword = &wordlist[10];
                 goto compare;
-              case 17:
+              case 14:
                 resword = &wordlist[11];
                 goto compare;
-              case 18:
+              case 15:
                 resword = &wordlist[12];
                 goto compare;
-              case 21:
+              case 16:
                 resword = &wordlist[13];
                 goto compare;
-              case 22:
+              case 20:
                 resword = &wordlist[14];
                 goto compare;
-              case 23:
+              case 21:
                 resword = &wordlist[15];
                 goto compare;
-              case 26:
+              case 23:
                 resword = &wordlist[16];
                 goto compare;
-              case 27:
+              case 24:
                 resword = &wordlist[17];
                 goto compare;
-              case 28:
+              case 25:
                 resword = &wordlist[18];
                 goto compare;
-              case 29:
+              case 26:
                 resword = &wordlist[19];
                 goto compare;
-              case 30:
+              case 29:
                 resword = &wordlist[20];
                 goto compare;
-              case 31:
+              case 30:
                 resword = &wordlist[21];
                 goto compare;
-              case 32:
+              case 31:
                 resword = &wordlist[22];
                 goto compare;
-              case 33:
+              case 32:
                 resword = &wordlist[23];
                 goto compare;
-              case 37:
+              case 34:
                 resword = &wordlist[24];
                 goto compare;
-              case 38:
+              case 35:
                 resword = &wordlist[25];
                 goto compare;
-              case 41:
+              case 36:
                 resword = &wordlist[26];
                 goto compare;
-              case 42:
+              case 39:
                 resword = &wordlist[27];
                 goto compare;
-              case 45:
+              case 40:
                 resword = &wordlist[28];
                 goto compare;
-              case 47:
+              case 41:
                 resword = &wordlist[29];
                 goto compare;
-              case 51:
+              case 45:
                 resword = &wordlist[30];
                 goto compare;
-              case 52:
+              case 46:
                 resword = &wordlist[31];
                 goto compare;
-              case 71:
+              case 48:
                 resword = &wordlist[32];
+                goto compare;
+              case 50:
+                resword = &wordlist[33];
+                goto compare;
+              case 74:
+                resword = &wordlist[34];
                 goto compare;
             }
           return 0;

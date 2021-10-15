@@ -14,6 +14,17 @@
 [ tor tor 2dup rfrom rfrom 2swap ] '2over bind
 [ tor rrot rfrom rrot ] '2swap bind
 
+\ Combinator
+
+[ swap tor call rfrom ] 'dip bind
+[ over tor call rfrom ] 'sip bind
+[ &sip dip call ] 'bi bind
+
+\ Control flow
+
+[ ?exit swap ] '?swap bind
+[ rot ?swap nip call ] 'choose bind
+
 [ here store #1 allot ] 'comma bind
 
 \ Fixed-point arithmetic

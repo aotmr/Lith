@@ -4,9 +4,12 @@
 %{
 enum {
     LITH_PRIM_EXIT,
+    LITH_PRIM_IFEXIT,
     LITH_PRIM_QUOT,
     LITH_PRIM_CALL,
     LITH_PRIM_GOTO,
+    LITH_PRIM_THROW,
+    LITH_PRIM_CATCH,
     LITH_PRIM_ISNULL,
     LITH_PRIM_ISVAL,
     LITH_PRIM_ISPTR,
@@ -41,9 +44,12 @@ enum {
 struct resword_s { const char * name; int id; };
 %%
 "exit", LITH_PRIM_EXIT,
+"?exit", LITH_PRIM_IFEXIT,
 "quot", LITH_PRIM_QUOT,
 "call", LITH_PRIM_CALL,
 "goto", LITH_PRIM_GOTO,
+"throw", LITH_PRIM_THROW,
+"catch", LITH_PRIM_CATCH,
 "null?", LITH_PRIM_ISNULL,
 "val?", LITH_PRIM_ISVAL,
 "ptr?", LITH_PRIM_ISPTR,
