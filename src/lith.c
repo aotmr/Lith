@@ -288,7 +288,7 @@ void lith_call(lith_State *st, CELL xt)
             case LITH_PRIM_DUP: DPush(st) = DTop(st); break;
             case LITH_PRIM_OVER: { CELL a = DNxt(st); DPush(st) = a; break; }
             case LITH_PRIM_DROP: DPop(st); break;
-            case LITH_PRIM_NIP: { CELL a = DNxt(st); DPop(st); DTop(st) = a; break; }
+            case LITH_PRIM_NIP: DNxt(st) = DTop(st); DPop(st); break;
             case LITH_PRIM_TOR: RPush(st) = DPop(st); break;
             case LITH_PRIM_RFROM: DPush(st) = RPop(st); break;
             // comma

@@ -1,0 +1,8 @@
+[ over tor nip rfrom ] 'swap bind
+[ tor swap rfrom swap ] 'rot bind
+[ rot rot ] 'rrot bind
+
+[ over over ] '2dup bind
+[ drop drop ] '2drop bind
+[ tor tor 2dup rfrom rfrom 2swap ] '2over bind
+[ tor rrot rfrom rrot ] '2swap bind
