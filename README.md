@@ -121,7 +121,7 @@ Primitives are represented by atoms of their name.
 | | `nip` | ( a b -- b ) | discard second stack item
 | | `>r` | ( x -- R:x ) | transfer value from return to data stack
 | | `r>` | ( R:x -- x ) | transfer values from data to return stack
-| comma | `here` | ( -- addr ) | Push here-pointer |
+| comma | `here` | ( -- addr ) | push here-pointer |
 | | `allot` | ( n -- ) | adjust here-pointer by `n` cells |
 | | `bind` | ( v k -- ) | bind `v` to `k` in global dictionary |
 | memory access | `fetch` | ( addr -- cell )
@@ -151,6 +151,7 @@ Different regimes could hold different types of objects just as well.
 
 ### To-Do
 
-Truthy and falsey values are represented inconsistently.
+- [ ] Truthy and falsey values are represented inconsistently.
 It should be fine to use `NIL` to mean "false"
-but accept either `NIL` *or* `#0` as false.
+but accept either `NIL` *or* `#0` as false
+- [ ] Incorporate a unit testing framework and add to build script
