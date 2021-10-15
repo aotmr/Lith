@@ -107,8 +107,8 @@ void lith_dumpMem(lith_State *st)
 
 static CELL lith_cons(lith_State *st, CELL car, CELL cdr)
 {
-    int addr = st->rHere;
     AlignPair(st);
+    int addr = st->rHere;
     Comma(st) = car;
     Comma(st) = cdr;
     return lith_makePair(addr);
@@ -233,16 +233,20 @@ void lith_call(lith_State *st, CELL xt)
     {
         while (lith_isPair(xt))
         {
+            dumpInnerState(st, "Pair");
             RPush(st) = st->rIP;
+            st->rIP = xt;
             xt = Mem(st, st->rIP);
             st->rIP += 2;
         }
         if (lith_isNull(xt))
         {
+            dumpInnerState(st, "NIL");
             st->rIP = RPop(st);
         }
         else if (lith_isVal(xt))
         {
+            dumpInnerState(st, "Val");
             DPush(st) = xt;
         }
         else
@@ -280,6 +284,13 @@ void lith_call(lith_State *st, CELL xt)
             case LITH_PRIM_AND: DoBinaryOp(st, &); break;
             case LITH_PRIM_OR: DoBinaryOp(st, |); break;
             case LITH_PRIM_XOR: DoBinaryOp(st, ^); break;
+            // stack
+            case LITH_PRIM_DUP: DPush(st) = DTop(st); break;
+            case LITH_PRIM_OVER: { CELL a = DNxt(st); DPush(st) = a; break; }
+            case LITH_PRIM_DROP: DPop(st); break;
+            case LITH_PRIM_NIP: { CELL a = DNxt(st); DPop(st); DTop(st) = a; break; }
+            case LITH_PRIM_TOR: RPush(st) = DPop(st); break;
+            case LITH_PRIM_RFROM: DPush(st) = RPop(st); break;
             // comma
             case LITH_PRIM_HERE: DPush(st) = lith_makePtr(st->rHere); break;
             case LITH_PRIM_ALLOT: st->rHere += lith_getValOrPtr(DPop(st)); break;
@@ -297,8 +308,8 @@ void lith_call(lith_State *st, CELL xt)
                 assert(0 && "illegal primitive number");
                 __builtin_unreachable();
             }
+            dumpInnerState(st, "Atom");
         }
-        dumpInnerState(st, "exec");
         if ((goOn = st->retStackPtr > retStackPtr0))
         {
             xt = Mem(st, st->rIP);
