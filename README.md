@@ -10,16 +10,16 @@ it is missing major functionality and any amount of test code.
 That will not be the case for much longer,
 for a time scale of, hopefully, only a few hours.
 
-# Building
+## Building
 
-## Dependencies
+### Dependencies
 
 - C99 compiler
 - histedit
 
-# Design
+## Design
 
-## Cell Tags
+### Cell Tags
 
 Distinct from most Forths,
 Lith has a weak dynamic typing system.
@@ -35,7 +35,7 @@ by the next least significant bit.
 | can be | `Pair` | `... ______00` | Pointer to secondary |
 | can be | `Atom` | `... ______10` | Short string |
 
-## Primitives
+### Primitives
 
 Lith currently has 26 primitives.
 
@@ -67,3 +67,9 @@ Lith currently has 26 primitives.
 | | `cistore` | ( addr offs byte -- addr ) | Store `byte` to `offs` bytes from the beginning of the cell at `addr`
 | output | `print` | ( cell -- ) | Print a cell in a way that's more useful for debugging than anything
 | | `cr` | ( -- ) | Print a newline
+
+## To-Do
+
+Truthy and falsey values are represented inconsistently.
+It should be fine to use `NIL` to mean "false"
+but accept either `NIL` *or* `#0` as false.
