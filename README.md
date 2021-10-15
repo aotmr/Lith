@@ -10,6 +10,25 @@ it is missing major functionality and any amount of test code.
 That will not be the case for much longer,
 for a time scale of, hopefully, only a few hours.
 
+## Syntax
+
+The outer interpreter, or parser, is very simple.
+Lines are divided into words:
+one or more non-space characters separated by one or more whitespace characters
+(as defined by `isspace`).
+Words can contain any non-whitespace character,
+but words starting with punctuation
+(as defined by `ispunct`)
+are considered *sigilated*.
+An initial sigil dictates how the parser interprets the rest of a word.
+
+| Sigil | Description |
+|-|-|
+| *none* | Call word |
+| `'` | Push atom, underscores replaced with spaces. |
+| `#` | Push literal |
+| `&` | Push address of word |
+
 ## Examples
 
 ### Desktop Calculator
