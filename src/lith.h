@@ -19,7 +19,7 @@ lith_State *lith_create(const lith_CreateOptions *opt);
 
 void lith_destroy(lith_State *st);
 
-void lith_dump(lith_State *st);
+void lith_dumpMem(lith_State *st);
 
 /* Cell encoding --------------------------------------------------------------
 
@@ -55,7 +55,7 @@ static inline bool lith_isNull(CELL x) { return !x; }
 static inline bool lith_isVal(CELL x) { return x && (x & 1); }
 static inline bool lith_isPtr(CELL x) { return x && !(x & 1); }
 // Further, pointers can be to a pair or an atom
-static inline bool lith_isPair(CELL x) { return x && (x & 3) == 0; }
+static inline bool lith_isPair(CELL x) { return x && ((x & 3) == 0); }
 static inline bool lith_isAtom(CELL x) { return (x & 3) == 2; }
 
 // Atoms ----------------------------------------------------------------------

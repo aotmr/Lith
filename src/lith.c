@@ -6,6 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+// ANSI escape sequences
+#define EReset "\033[0m"
+#define EBold "\033[1m"
+#define ERev "\033[7m"
+
 // Generate struct members for a CELL stack
 #define MakeStack(prefix)   \
     CELL *prefix##Stack;    \
@@ -14,6 +19,8 @@
 
 struct lith_State_s
 {
+    int iNest;
+
     CELL *mem;
     int memLimit;
 
@@ -37,7 +44,7 @@ lith_State *lith_create(const lith_CreateOptions *opt)
     assert(st->mem);
 
     st->rLast = LITH_NIL;
-    st->rHere = lith_makePtr(1);
+    st->rHere = 1;
     st->rIP = LITH_NIL;
 
     st->dataStack = calloc(opt->dataStackLimit, sizeof(CELL));
@@ -61,11 +68,11 @@ void lith_destroy(lith_State *st)
     free(st);
 }
 
-void lith_dump(lith_State *st)
+void lith_dumpMem(lith_State *st)
 {
     assert(st);
 
-    for (int i = 0; i < st->memLimit; ++i)
+    for (int i = 0; i < st->rHere && i < st->memLimit; ++i)
     {
         if (i % 4 == 0)
             printf("\n%08X |", i);
@@ -95,12 +102,13 @@ void lith_dump(lith_State *st)
 
 // Dictionary -------------------------------------------------------------------
 
+#define AlignPair(st) ((st)->rHere += (st)->rHere & 1)
 #define Comma(st) ((st)->mem[(st)->rHere++])
 
 static CELL lith_cons(lith_State *st, CELL car, CELL cdr)
 {
     int addr = st->rHere;
-    st->rHere += st->rHere & 1;
+    AlignPair(st);
     Comma(st) = car;
     Comma(st) = cdr;
     return lith_makePair(addr);
@@ -121,7 +129,6 @@ static CELL lith_find(lith_State *st, CELL key)
 {
     for (CELL p = st->rLast; !lith_isNull(p); p = CDR(st, p))
     {
-        printf("searching at %ld\n", p);
         if (CAAR(st, p) == key)
             return CADR(st, p);
     }
@@ -134,7 +141,7 @@ static void doQuot(lith_State *st)
 {
     CELL len = DTop(st);
     DTop(st) = st->rIP;
-    st->rIP += len;
+    st->rIP += lith_getValOrPtr(len);
 }
 
 #define DoUnaryFn(st, fn) (DTop(st) = fn(DTop(st)))
@@ -210,6 +217,11 @@ static struct resword_s *hashAtom(CELL a)
     return in_word_set(lith_atomStr(a), lith_atomLen(a));
 }
 
+static void dumpInnerState(lith_State *st, const char * info)
+{
+    fprintf(stderr, ERev "IP %08X\tDSP% 4d\tRSP% 4d\t%s\n" EReset, st->rIP, st->dataStackPtr, st->retStackPtr, info);
+}
+
 void lith_call(lith_State *st, CELL xt)
 {
     int retStackPtr0 = st->retStackPtr;
@@ -239,6 +251,7 @@ void lith_call(lith_State *st, CELL xt)
             struct resword_s *resword = hashAtom(xt);
             if (!resword)
             {
+                fprintf(stderr, "%016lX\n", xt);
                 fprintf(stderr, "cannot execute primitive %*s\n", lith_atomLen(xt), lith_atomStr(xt));
                 assert(0 && "illegal primitive");
             }
@@ -247,7 +260,7 @@ void lith_call(lith_State *st, CELL xt)
             // clang-format off
             // control flow
             case LITH_PRIM_EXIT: st->rIP = RPop(st); break;
-            case LITH_PRIM_CALL: lith_call(st, DPop(st)); break;
+            case LITH_PRIM_CALL: RPush(st) = st->rIP; st->rIP = DPop(st); break;
             case LITH_PRIM_GOTO: st->rIP = DPop(st); break;
             case LITH_PRIM_QUOT: doQuot(st); break; // ( len -- addr )
             // type check
@@ -285,6 +298,7 @@ void lith_call(lith_State *st, CELL xt)
                 __builtin_unreachable();
             }
         }
+        dumpInnerState(st, "exec");
         if ((goOn = st->retStackPtr > retStackPtr0))
         {
             xt = Mem(st, st->rIP);
@@ -307,6 +321,22 @@ CELL lith_atomOfStr(const char *str, int strLen)
 }
 
 // Outer interpreter ----------------------------------------------------------
+
+void compileOrPush(lith_State *st, CELL x)
+{
+    if (st->iNest > 0)
+        Comma(st) = x | 1;
+    else
+        DPush(st) = x;
+}
+
+void compileOrCall(lith_State *st, CELL x)
+{
+    if (st->iNest > 0)
+        Comma(st) = x;
+    else
+        lith_call(st, x);
+}
 
 void lith_interpWord(lith_State *st, char *word, int wordLen)
 {
@@ -332,7 +362,8 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
     case '#': // literal
     {
         long long int n = strtoll(word + 1, NULL, 0);
-        DPush(st) = lith_makeVal(n);
+        CELL v = lith_makeVal(n);
+        compileOrPush(st, v);
         break;
     }
     case '&': // addr of word
@@ -341,14 +372,50 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
         assert(!lith_isNull(a));
         CELL b = lith_find(st, a);
         assert(!lith_isNull(b) && "cannot find word in dictionary");
-        DPush(st) = b;
+        compileOrPush(st, b);
         break;
     }
+    case '[':
+    {
+        if (wordLen == 1)
+        {
+            ++st->iNest;
+            // compile quotation
+            DPush(st) = lith_makePtr(st->rHere);
+            Comma(st) = LITH_NIL;
+            Comma(st) = lith_atomOfStr("quot", 4);
+            AlignPair(st);
+            DPush(st) = lith_makePtr(st->rHere);
+            break;
+        }
+        else
+            goto default_;
+    }
+    case ']':
+    {
+        if (wordLen == 1)
+        {
+            CELL body = DPop(st);
+            CELL fix = DPop(st);
+            Comma(st) = lith_atomOfStr("exit", 4);
+            Mem(st, fix) = lith_makeVal(st->rHere - lith_getValOrPtr(fix));
+            
+            --st->iNest;
+            assert(st->iNest >= 0);
+
+            compileOrPush(st, body);
+            break;
+        }
+        else
+            goto default_;
+    }
+    default_:
     default: // word
     {
         CELL a = lith_atomOfStr(word, wordLen);
         assert(!lith_isNull(a));
-        lith_call(st, a);
+        CELL b = lith_find(st, a);
+        compileOrCall(st, lith_isNull(b) ? a : b);
         break;
     }
     }
