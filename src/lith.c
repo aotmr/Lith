@@ -112,7 +112,7 @@ static void lith_bind(lith_State *st, CELL key, CELL val)
 }
 
 #define CAR(st, p) Mem(st, p + 0)
-#define CDR(st, p) Mem(st, p + 1)
+#define CDR(st, p) Mem(st, p + 2)
 
 #define CAAR(st, p) CAR(st, CAR(st, p))
 #define CADR(st, p) CDR(st, CAR(st, p))
