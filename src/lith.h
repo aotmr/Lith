@@ -23,12 +23,12 @@ void lith_dumpMem(lith_State *st);
 
 /* Cell encoding --------------------------------------------------------------
 
-A Cell can be NIL, Val, or Ptr, and a Ptr can be a Pair or Atom.
+A Cell can be NIL, Val, or Ptr, and a Ptr can be a Even or Atom.
 
 NIL     00000000
 Val     vvvvvvv1
 Ptr     ppppppp0
-  Pair  pppppp00
+  Even  pppppp00
   Atom  aaaaaa10
 
 
@@ -39,7 +39,7 @@ AtomStr nnnn0010
 static inline CELL lith_makeVal(CELL x) { return (x << 1) | 1; }
 static inline CELL lith_makePtr(CELL x) { return (x << 1) | 0; }
 // Assumes x fits in 63 bits and even-aligned
-static inline CELL lith_makePair(CELL x) { return (x << 1) | 0; }
+static inline CELL lith_makeEven(CELL x) { return (x << 1) | 0; }
 static inline CELL lith_makeAtom(CELL x) { return (x << 1) | 2; }
 
 // Cell decoding --------------------------------------------------------------
@@ -54,8 +54,8 @@ static inline CELL lith_getAtom(CELL x) { return x >> 2; }
 static inline bool lith_isNull(CELL x) { return !x; }
 static inline bool lith_isVal(CELL x) { return x && (x & 1); }
 static inline bool lith_isPtr(CELL x) { return x && !(x & 1); }
-// Further, pointers can be to a pair or an atom
-static inline bool lith_isPair(CELL x) { return x && ((x & 3) == 0); }
+// Further, pointers can be to a even or an atom
+static inline bool lith_isEven(CELL x) { return x && ((x & 3) == 0); }
 static inline bool lith_isAtom(CELL x) { return (x & 3) == 2; }
 
 // Atoms ----------------------------------------------------------------------

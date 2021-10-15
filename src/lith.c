@@ -117,16 +117,16 @@ the interpreter needs to touch it.
 
 */
 
-#define AlignPair(st) ((st)->rHere += (st)->rHere & 1)
+#define AlignEven(st) ((st)->rHere += (st)->rHere & 1)
 #define Comma(st) ((st)->mem[(st)->rHere++])
 
 static CELL lith_cons(lith_State *st, CELL car, CELL cdr)
 {
-    AlignPair(st);
+    AlignEven(st);
     int addr = st->rHere;
     Comma(st) = car;
     Comma(st) = cdr;
-    return lith_makePair(addr);
+    return lith_makeEven(addr);
 }
 
 static void lith_bind(lith_State *st, CELL key, CELL val)
@@ -245,9 +245,9 @@ void lith_call(lith_State *st, CELL xt)
     bool goOn = true;
     while (goOn)
     {
-        while (lith_isPair(xt))
+        while (lith_isEven(xt))
         {
-            dumpInnerState(st, "Pair");
+            dumpInnerState(st, "Even");
             RPush(st) = st->rIP;
             st->rIP = xt;
             xt = Mem(st, st->rIP);
@@ -285,7 +285,7 @@ void lith_call(lith_State *st, CELL xt)
             case LITH_PRIM_ISNULL: DoUnaryFn(st, lith_isNull); break;
             case LITH_PRIM_ISVAL: DoUnaryFn(st, lith_isVal); break;
             case LITH_PRIM_ISPTR: DoUnaryFn(st, lith_isPtr); break;
-            case LITH_PRIM_ISPAIR: DoUnaryFn(st, lith_isPair); break;
+            case LITH_PRIM_ISPAIR: DoUnaryFn(st, lith_isEven); break;
             case LITH_PRIM_ISATOM: DoUnaryFn(st, lith_isAtom); break;
             // comparison
             case LITH_PRIM_ISEQUAL: DNxt(st) = lith_makeVal(-(DNxt(st) == DTop(st))); DPop(st); break;
@@ -410,10 +410,10 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
             Comma(st) = LITH_NIL;
             Comma(st) = lith_atomOfStr("quot", 4);
 
-            // The body must be aligned as a `Pair` for the interpreter to
+            // The body must be aligned as a `Even` for the interpreter to
             // recognize the address not as an `Atom`. This is why we push
             // a separate address for the body.
-            AlignPair(st);
+            AlignEven(st);
             DPush(st) = lith_makePtr(st->rHere); // body address
             break;
         }

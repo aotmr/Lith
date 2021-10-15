@@ -46,7 +46,7 @@ struct resword_s { const char * name; int id; };
 "null?", LITH_PRIM_ISNULL,
 "val?", LITH_PRIM_ISVAL,
 "ptr?", LITH_PRIM_ISPTR,
-"pair?", LITH_PRIM_ISPAIR,
+"even?", LITH_PRIM_ISPAIR,
 "atom?", LITH_PRIM_ISATOM,
 "equal?", LITH_PRIM_ISEQUAL,
 "neg?", LITH_PRIM_ISNEG,

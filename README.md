@@ -83,7 +83,7 @@ by the next least significant bit.
 | `NIL` | | `... 00000000` | (all zeroes) |
 | `Val` | | `... _______1` | Integer |
 | `Ptr` | | `... _______0` | Pointer |
-| can be | `Pair` | `... ______00` | Pointer to secondary |
+| can be | `Even` | `... ______00` | Pointer to secondary |
 | can be | `Atom` | `... ______10` | Short string |
 
 This representation is sure to change in the future.
@@ -99,12 +99,12 @@ Primitives are represented by atoms of their name.
 |-|-|-|-|
 | control flow | `exit` | ( -- ) | return to the callee |
 | | `quot` | ( len -- cell ) | push a quotation of `len` cells to the stack |
-| | `call` | ( xt -- ) | call code at `xt`, which can be `Pair` or `Atom` |
-| | `goto` | ( xt -- ) | tail call to cell at address `xt` (must be a `Pair`) |
+| | `call` | ( xt -- ) | call code at `xt`, which can be `Even` or `Atom` |
+| | `goto` | ( xt -- ) | tail call to cell at address `xt` (must be a `Even`) |
 | type check | `null?` | ( cell -- flag ) |
 | | `val?` | ( cell -- flag ) |
 | | `ptr?` | ( cell -- flag ) |
-| | `pair?` | ( cell -- flag ) |
+| | `even?` | ( cell -- flag ) |
 | | `atom?` | ( cell -- flag ) |
 | comparison | `equal?` | ( a b -- flag ) |
 | | `neg?` | ( a -- flag ) |
@@ -144,7 +144,7 @@ we would designate regimes for each stack
 and a regime for the basic dictionary.
 Additional regimes would be mapped on demand.
 
-Rather than distinguishing `Pair`s from `Atom`s by their low bits,
+Rather than distinguishing `Even`s from `Atom`s by their low bits,
 we could distinguish them by their regime--
 similar to how many Lisp machines had memory regions for each kind of object.
 Different regimes could hold different types of objects just as well.
