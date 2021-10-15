@@ -94,12 +94,13 @@ we might use the *upper* bits of a cell to further annotate it.
 
 ### Primitives
 
-Lith currently has 33 primitives.
+Lith currently has 37 primitives.
 Primitives are represented by atoms of their name.
 
 | Category | Name | Arity | Description |
 |-|-|-|-|
 | control flow | `exit` | ( -- ) | return to the callee |
+| | `?exit` | ( flag -- ) | conditionally return to callee |
 | | `quot` | ( len -- cell ) | push a quotation of `len` cells to the stack |
 | | `call` | ( xt -- ) | call code at `xt`, which can be `Even` or `Atom` |
 | | `goto` | ( xt -- ) | tail call to cell at address `xt` (must be a `Even`) |
