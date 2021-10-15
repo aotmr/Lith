@@ -53,6 +53,8 @@ lith_State *lith_create(const lith_CreateOptions *opt)
     st->rHere = 1;
     st->rIP = LITH_NIL;
 
+    st->catchExn = false;
+
     st->dataStack = calloc(opt->dataStackLimit, sizeof(CELL));
     st->dataStackLimit = opt->dataStackLimit;
     assert(st->dataStack);
@@ -88,9 +90,14 @@ void lith_destroy(lith_State *st)
 void lith_throw(lith_State *st, int error)
 {
     if (st->catchExn)
+    {
         longjmp(st->handleExn, error);
+    }
     else
+    {
+        fprintf(stderr, "warning: uncaught exception %s\n", strerror(error));
         exit(error);
+    }
 }
 
 #define AssertThrow(st, expr, error) ((expr) ? (void)0 : lith_throw(st, error))
@@ -148,6 +155,7 @@ static CELL lith_cons(lith_State *st, CELL car, CELL cdr)
 static void lith_bind(lith_State *st, CELL key, CELL val)
 {
     assert(st);
+    fprintf(stderr, "bound %016lX -> %016lX\n", key, val);
 
     st->rLast = lith_cons(st, lith_cons(st, key, val), st->rLast);
 }
@@ -454,7 +462,6 @@ static CELL lookUpWord(lith_State *st, const char *word, int wordLen)
 {
     CELL atom = lith_atomOfStr(word, wordLen);
     AssertThrow(st, !lith_isNull(atom), EPERM);
-
     CELL addr = lith_find(st, atom);
     AssertThrow(st, !lith_isNull(addr), EPERM);
     return addr;
@@ -533,7 +540,6 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
         AssertThrow(st, st->iNest == 1, EPERM);
         CELL addr = DPop(st);
         CELL atom = DPop(st);
-        lith_bind(st, addr, atom);
 
         if (wordLen == 1)
         {
@@ -541,10 +547,12 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
         }
         else
         {
-            AssertThrow(st, lith_isPtr(addr), EDOM);
-            Comma(st) = lith_toVal(addr);
+            CELL tail = lookUpWord(st, word + 1, wordLen - 1);
+            AssertThrow(st, lith_isPtr(tail), EDOM);
+            Comma(st) = lith_toVal(tail);
             Comma(st) = ConstAtom("goto");
         }
+        lith_bind(st, atom, addr);
         --st->iNest;
         break;
     }
