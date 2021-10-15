@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     error_t error = argp_parse(NULL, argc, argv, 0, NULL, NULL);
     (void)error;
 
-    lith_State *st = lith_create(&(lith_CreateOptions){0x10000, 32, 32});
+    lith_State *st = lith_create(&(lith_CreateOptions){1 << 10, 32, 32});
     assert(st);
 
     EditLine *el = el_init(argv[0], stdin, stdout, stderr);
@@ -39,5 +39,7 @@ int main(int argc, char **argv)
         puts(ELit(EBold "ok." EReset));
     }
     el_end(el);
+
+    lith_dump(st);
     lith_destroy(st);
 }

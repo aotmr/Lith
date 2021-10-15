@@ -56,6 +56,20 @@ void lith_destroy(lith_State *st)
     free(st);
 }
 
+void lith_dump(lith_State *st)
+{
+    assert(st);
+
+    for (int i = 0; i < st->memLimit; ++i)
+    {
+        if (i % 4 == 0)
+            printf("\n%08X |", i);
+
+        printf("  %016lX", st->mem[i]);
+    }
+    puts("");
+}
+
 // Stack operations -----------------------------------------------------------
 
 #define MakePush(prefix, st) ((st)->prefix##Stack[(st)->prefix##StackPtr++])
@@ -145,6 +159,13 @@ static void doCIStore(lith_State *st)
 #define InHalfOpenRange(x, a, b) ((a) <= (x) && (x) < (b))
 #define MakeStackCheck(prefix, st) (InHalfOpenRange((st)->prefix##StackPtr, 0, (st)->prefix##StackLimit))
 
+static struct resword_s *hashAtom(CELL a)
+{
+    if (!lith_isAtom(a))
+        return NULL;
+    return in_word_set(lith_atomStr(a), lith_atomLen(a));
+}
+
 void lith_call(lith_State *st, CELL xt)
 {
     int retStackPtr0 = st->retStackPtr;
@@ -171,7 +192,7 @@ void lith_call(lith_State *st, CELL xt)
         else
         {
             assert(lith_isAtom(xt));
-            struct resword_s *resword = in_word_set(lith_atomStr(xt), lith_atomLen(xt));
+            struct resword_s *resword = hashAtom(xt);
             if (!resword)
             {
                 fprintf(stderr, "cannot execute primitive %*s\n", lith_atomLen(xt), lith_atomStr(xt));
@@ -219,7 +240,8 @@ void lith_call(lith_State *st, CELL xt)
                 __builtin_unreachable();
             }
         }
-        if ((goOn = st->retStackPtr > retStackPtr0)) {
+        if ((goOn = st->retStackPtr > retStackPtr0))
+        {
             xt = Mem(st, st->rIP);
             st->rIP += 2;
         }

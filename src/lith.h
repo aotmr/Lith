@@ -19,6 +19,8 @@ lith_State *lith_create(const lith_CreateOptions *opt);
 
 void lith_destroy(lith_State *st);
 
+void lith_dump(lith_State *st);
+
 /* Cell encoding --------------------------------------------------------------
 
 A Cell can be NIL, Val, or Ptr, and a Ptr can be a Pair or Atom.
