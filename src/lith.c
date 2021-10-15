@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <setjmp.h>
 
 // ANSI escape sequences
 #define EReset "\033[0m"
@@ -27,6 +28,9 @@ struct lith_State_s
     CELL rLast;
     int rHere;
     int rIP;
+
+    jmp_buf handleExn;
+    bool catchExn;
 
     MakeStack(data);
     MakeStack(ret);
@@ -56,6 +60,13 @@ lith_State *lith_create(const lith_CreateOptions *opt)
     assert(st->retStack);
 
     return st;
+}
+
+void lith_reset(lith_State *st)
+{
+    st->rIP = 0;
+    st->dataStackPtr = 0;
+    st->retStackPtr = 0;
 }
 
 void lith_destroy(lith_State *st)
@@ -334,6 +345,24 @@ void lith_call(lith_State *st, CELL xt)
     }
 
     assert(MakeStackCheck(data, st));
+}
+
+int lith_catch(lith_State *st, CELL xt) {
+    bool oldCatchExn = st->catchExn;
+    jmp_buf oldHandleExn;
+    memcpy(oldHandleExn, st->handleExn, sizeof(jmp_buf));
+
+    st->catchExn = true;
+    int result = setjmp(st->handleExn);
+    if (result == 0) {
+        lith_call(st, xt);
+    } else {
+        fprintf(stderr, "error: caught exception %d", result);
+    }
+    
+    st->catchExn = oldCatchExn;
+    memcpy(st->handleExn, oldHandleExn, sizeof(jmp_buf));
+    return result;
 }
 
 // Atoms ----------------------------------------------------------------------
