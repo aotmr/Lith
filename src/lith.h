@@ -10,9 +10,9 @@ typedef struct lith_State_s lith_State;
 
 typedef struct
 {
-    int memLimit;
-    int dataStackLimit;
-    int retStackLimit;
+  int memLimit;
+  int dataStackLimit;
+  int retStackLimit;
 } lith_CreateOptions;
 
 lith_State *lith_create(const lith_CreateOptions *opt);
@@ -60,10 +60,7 @@ static inline bool lith_isAtom(CELL x) { return (x & 3) == 2; }
 
 #define lith_atomStr(a) ((const char *)&a + 1)
 
-static inline int lith_atomLen(CELL a)
-{
-  return (a >> 4) & 7;
-}
+static inline int lith_atomLen(CELL a) { return (a >> 4) & 7; }
 
 CELL lith_atomOfStr(const char *str, int strLen);
 
