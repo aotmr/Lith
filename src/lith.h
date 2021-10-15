@@ -7,6 +7,18 @@ typedef int64_t lith_Cell;
 
 static const CELL LITH_NIL = 0;
 
+enum {
+  LITH_EXN_None = 0,
+  LITH_EXN_Error,
+  LITH_EXN_TypeMismatch,
+  LITH_EXN_DivByZero,
+  LITH_EXN_StackBounds,
+  LITH_EXN_MemBounds,
+  LITH_EXN_LookupFailure,
+  LITH_EXN_BadNestLevel,
+  LITH_EXN_COUNT_,
+};
+
 typedef struct lith_State_s lith_State;
 
 typedef struct

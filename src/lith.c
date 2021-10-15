@@ -87,6 +87,23 @@ void lith_destroy(lith_State *st)
 
 // Exceptions -----------------------------------------------------------------
 
+#define InHalfOpenRange(x, a, b) ((a) <= (x) && (x) < (b))
+
+const char *lith_exnString(int error)
+{
+    static const char *exnMessages[LITH_EXN_COUNT_] = {
+        "no error",
+        "unspecified error",
+        "type mismatch",
+        "division by zero",
+        "out of bounds stack access",
+        "out of bounds memory access",
+        "word lookup failure",
+        "bad nest level",
+    };
+    return InHalfOpenRange(error, 0, LITH_EXN_COUNT_) ? exnMessages[error] : "unknown error";
+}
+
 void lith_throw(lith_State *st, int error)
 {
     if (st->catchExn)
@@ -95,7 +112,7 @@ void lith_throw(lith_State *st, int error)
     }
     else
     {
-        fprintf(stderr, "warning: uncaught exception %s\n", strerror(error));
+        fprintf(stderr, "fatal: uncaught exception %d, %s\n", error, lith_exnString(error));
         exit(error);
     }
 }
@@ -104,13 +121,11 @@ void lith_throw(lith_State *st, int error)
 
 // Stack operations -----------------------------------------------------------
 
-#define InHalfOpenRange(x, a, b) ((a) <= (x) && (x) < (b))
-
 static inline CELL *peekImpl(lith_State *st, CELL *stack, int ptr, int limit, int n)
 {
     assert(st);
 
-    AssertThrow(st, InHalfOpenRange((ptr - n), 0, limit), EFAULT);
+    AssertThrow(st, InHalfOpenRange((ptr - n), 0, limit), LITH_EXN_StackBounds);
     return &stack[ptr - n];
 }
 
@@ -214,7 +229,7 @@ static void doDivMod(lith_State *st)
 
     CELL b = lith_getValOrPtr(DTop(st));
     CELL a = lith_getValOrPtr(DNxt(st));
-    AssertThrow(st, b != 0, EDOM); // throw on division by zeor
+    AssertThrow(st, b != 0, LITH_EXN_DivByZero); // throw on division by zeor
 
     ldiv_t result = ldiv(a, b);
     DTop(st) = lith_makeVal(result.rem);
@@ -434,7 +449,7 @@ int lith_catch(lith_State *st, CELL xt)
     }
     else
     {
-        fprintf(stderr, "error: caught exception %d, %s\n", result, strerror(result));
+        fprintf(stderr, "error: caught exception %d, %s\n", result, lith_exnString(result));
     }
 
     st->catchExn = oldCatchExn;
@@ -461,9 +476,9 @@ CELL lith_atomOfStr(const char *str, int strLen)
 static CELL lookUpWord(lith_State *st, const char *word, int wordLen)
 {
     CELL atom = lith_atomOfStr(word, wordLen);
-    AssertThrow(st, !lith_isNull(atom), EPERM);
+    AssertThrow(st, !lith_isNull(atom), LITH_EXN_Error);
     CELL addr = lith_find(st, atom);
-    AssertThrow(st, !lith_isNull(addr), EPERM);
+    AssertThrow(st, !lith_isNull(addr), LITH_EXN_LookupFailure);
     return addr;
 }
 
@@ -525,7 +540,7 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
     }
     case ':': // easy binding
     {
-        AssertThrow(st, st->iNest == 0, EPERM);
+        AssertThrow(st, st->iNest == 0, LITH_EXN_BadNestLevel);
         ++st->iNest;
 
         CELL atom = lith_atomOfStr(word + 1, wordLen - 1);
@@ -537,7 +552,7 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
     }
     case ';': // exit or tail call
     {
-        AssertThrow(st, st->iNest == 1, EPERM);
+        AssertThrow(st, st->iNest == 1, LITH_EXN_BadNestLevel);
         CELL addr = DPop(st);
         CELL atom = DPop(st);
 
@@ -548,7 +563,7 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
         else
         {
             CELL tail = lookUpWord(st, word + 1, wordLen - 1);
-            AssertThrow(st, lith_isPtr(tail), EDOM);
+            AssertThrow(st, lith_isPtr(tail), LITH_EXN_TypeMismatch);
             Comma(st) = lith_toVal(tail);
             Comma(st) = ConstAtom("goto");
         }
