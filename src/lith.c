@@ -6,28 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Stack macros ---------------------------------------------------------------
-
+// Generate struct members for a CELL stack
 #define MakeStack(prefix)   \
     CELL *prefix##Stack;    \
     int prefix##StackLimit; \
     int prefix##StackPtr
-
-#define MakePush(prefix, st) ((st)->prefix##Stack[(st)->prefix##StackPtr++])
-#define MakePop(prefix, st) ((st)->prefix##Stack[--(st)->prefix##StackPtr])
-#define MakePeek(prefix, st, n) ((st)->prefix##Stack[(st)->prefix##StackPtr - (n)])
-
-#define DPush(st) MakePush(data, st)
-#define DPop(st) MakePop(data, st)
-#define DPeek(st, n) MakePeek(data, st, n)
-#define DTop(st) DPeek(st, 1)
-#define DNxt(st) DPeek(st, 2)
-
-#define RPush(st) MakePush(ret, st)
-#define RPop(st) MakePop(ret, st)
-#define RPeek(st, n) MakePeek(ret, st, n)
-
-#define Mem(st, a) ((st)->mem[lith_getValOrPtr(a)])
 
 struct lith_State_s
 {
@@ -73,6 +56,24 @@ void lith_destroy(lith_State *st)
     free(st);
 }
 
+// Stack operations -----------------------------------------------------------
+
+#define MakePush(prefix, st) ((st)->prefix##Stack[(st)->prefix##StackPtr++])
+#define MakePop(prefix, st) ((st)->prefix##Stack[--(st)->prefix##StackPtr])
+#define MakePeek(prefix, st, n) ((st)->prefix##Stack[(st)->prefix##StackPtr - (n)])
+
+#define DPush(st) MakePush(data, st)
+#define DPop(st) MakePop(data, st)
+#define DPeek(st, n) MakePeek(data, st, n)
+#define DTop(st) DPeek(st, 1)
+#define DNxt(st) DPeek(st, 2)
+
+#define RPush(st) MakePush(ret, st)
+#define RPop(st) MakePop(ret, st)
+#define RPeek(st, n) MakePeek(ret, st, n)
+
+#define Mem(st, a) ((st)->mem[lith_getValOrPtr(a)])
+
 // Inner interpreter ------------------------------------------------------------
 
 static void doQuot(lith_State *st)
@@ -101,11 +102,11 @@ static void doMul(lith_State *st)
 
 static void doDivMod(lith_State *st)
 {
-    CELL a = lith_getValOrPtr(DTop(st));
-    CELL b = lith_getValOrPtr(DNxt(st));
+    CELL b = lith_getValOrPtr(DTop(st));
+    CELL a = lith_getValOrPtr(DNxt(st));
     ldiv_t result = ldiv(a, b);
-    DTop(st) = result.quot;
-    DNxt(st) = result.rem;
+    DTop(st) = lith_makeVal(result.quot);
+    DNxt(st) = lith_makeVal(result.rem);
 }
 
 static void doPrintCell(CELL x)
@@ -141,13 +142,17 @@ static void doCIStore(lith_State *st)
     ((unsigned char *)&Mem(st, addr))[offs] = data;
 }
 
+#define InHalfOpenRange(x, a, b) ((a) <= (x) && (x) < (b))
+#define MakeStackCheck(prefix, st) (InHalfOpenRange((st)->prefix##StackPtr, 0, (st)->prefix##StackLimit))
+
 void lith_call(lith_State *st, CELL xt)
 {
     int retStackPtr0 = st->retStackPtr;
     // CALLing a NIL xt does nothing but stepping into it is the same as EXIT
     if (lith_isNull(xt))
         return;
-    do
+    bool goOn = true;
+    while (goOn)
     {
         while (lith_isPair(xt))
         {
@@ -214,7 +219,13 @@ void lith_call(lith_State *st, CELL xt)
                 __builtin_unreachable();
             }
         }
-    } while (st->retStackPtr > retStackPtr0);
+        if ((goOn = st->retStackPtr > retStackPtr0)) {
+            xt = Mem(st, st->rIP);
+            st->rIP += 2;
+        }
+    }
+
+    assert(MakeStackCheck(data, st));
 }
 
 // Atoms ----------------------------------------------------------------------
