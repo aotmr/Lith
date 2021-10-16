@@ -482,7 +482,7 @@ static CELL lookUpWord(lith_State *st, const char *word, int wordLen)
     assert(wordLen >= 0);
 
     CELL atom = lith_atomOfStr(word, wordLen);
-    AssertThrow(st, !lith_isNull(atom), LITH_EXN_Error);
+    AssertThrow(st, !lith_isNull(atom), LITH_EXN_FailedAssertion);
     CELL addr = lith_find(st, atom);
     AssertThrow(st, !lith_isNull(addr), LITH_EXN_LookupFailure);
     return addr;

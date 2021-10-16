@@ -9,7 +9,7 @@ static const CELL LITH_NIL = 0;
 
 enum {
   LITH_EXN_None = 0,
-  LITH_EXN_Error,
+  LITH_EXN_FailedAssertion,
   LITH_EXN_TypeMismatch,
   LITH_EXN_DivByZero,
   LITH_EXN_StackBounds,
