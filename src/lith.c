@@ -430,7 +430,7 @@ void lith_call(lith_State *st, CELL xt)
         }
     }
 
-    assert(MakeStackCheck(data, st));
+    AssertThrow(st, MakeStackCheck(data, st), LITH_EXN_StackBounds);
 }
 
 int lith_catch(lith_State *st, CELL xt)
