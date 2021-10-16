@@ -297,7 +297,7 @@ void lith_dumpMem(lith_State *st, FILE *outFile)
     fputc('\n', outFile);
     for (int i = 0; i < st->rHere && i < st->memLimit; i += CELLS_PER_ROW)
     {
-        fprintf(outFile, "%08X |", i);
+        fprintf(outFile, "%08X |", (unsigned int)lith_makePtr(i));
         for (int j = 0; j < CELLS_PER_ROW; ++j)
         {
             fprintf(outFile, "  %016lX", st->mem[i + j]);
@@ -334,7 +334,11 @@ static void dumpInnerState(lith_State *st, FILE *outFile, const char *info)
     assert(st);
     assert(info);
 
-    fprintf(outFile, ERev "IP %08X\tDSP% 4d\tRSP% 4d\t%s\n" EReset, st->rIP, st->dataStackPtr, st->retStackPtr, info);
+    fprintf(outFile, ERev "IP %08X\tDSP% 4d\tRSP% 4d\t%s" EReset, st->rIP, st->dataStackPtr, st->retStackPtr, info);
+    for (int i = 0; i < st->dataStackPtr; ++i) {
+        fprintf(outFile, "\t% ld", st->dataStack[i]);
+    }
+    fputc('\n', outFile);
 }
 
 void lith_call(lith_State *st, CELL xt)
@@ -382,7 +386,7 @@ void lith_call(lith_State *st, CELL xt)
             // control flow
             case LITH_PRIM_EXIT: st->rIP = RPop(st); break;
             case LITH_PRIM_IFEXIT: if (lith_getValOrPtr(RPop(st))) st->rIP = RPop(st); break;
-            case LITH_PRIM_CALL: lith_call(st, DPop(st)); break;
+            case LITH_PRIM_CALL: { CELL xt = DPop(st); lith_call(st, xt); } break;
             case LITH_PRIM_GOTO: st->rIP = DPop(st); break;
             case LITH_PRIM_QUOT: doQuot(st); break; // ( len -- addr )
             case LITH_PRIM_THROW: lith_throw(st, lith_getValOrPtr(DPop(st))); break;
@@ -431,15 +435,14 @@ void lith_call(lith_State *st, CELL xt)
             dumpInnerState(st, stderr, "Atom");
         }
 
-        AssertThrow(st, MakeStackCheck(data, st), LITH_EXN_StackBounds);
-        AssertThrow(st, MakeStackCheck(ret, st), LITH_EXN_StackBounds);
-
         if ((goOn = st->retStackPtr > retStackPtr0))
         {
             xt = Mem(st, st->rIP);
             st->rIP += 2;
         }
     }
+    AssertThrow(st, MakeStackCheck(data, st), LITH_EXN_StackBounds);
+    AssertThrow(st, MakeStackCheck(ret, st), LITH_EXN_StackBounds);
 }
 
 int lith_catch(lith_State *st, CELL xt)

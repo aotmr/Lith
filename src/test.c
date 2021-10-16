@@ -30,7 +30,8 @@ UTEST_F(BasicFixture, tor_throws_on_underflow) { EXPECT_EQ(InterpLiteral(ST, "to
 UTEST_F(BasicFixture, rfrom_throws_on_underflow) { EXPECT_EQ(InterpLiteral(ST, "rfrom"), LITH_EXN_StackBounds); }
 
 UTEST_F(BasicFixture, interpret_quotation) { EXPECT_EQ(-3, InterpLiteral(ST, "[ #-3 ] call throw")); }
-UTEST_F(BasicFixture, nested_quotations) { EXPECT_EQ(-5, InterpLiteral(ST, "[ [ #-5 ] ] call call throw")); }
+UTEST_F(BasicFixture, nested_quotations_1) { EXPECT_EQ(-8, InterpLiteral(ST, "[ [ #-4 dup ] ] call call add throw")); }
+UTEST_F(BasicFixture, nested_quotations_2) { EXPECT_EQ(125, InterpLiteral(ST, "#105 [ [ #20 add throw ] ] call call")); }
 
 UTEST_F_TEARDOWN(BasicFixture)
 {
