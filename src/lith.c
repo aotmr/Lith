@@ -423,14 +423,16 @@ void lith_call(lith_State *st, CELL xt)
             }
             dumpInnerState(st, stderr, "Atom");
         }
+
+        AssertThrow(st, MakeStackCheck(data, st), LITH_EXN_StackBounds);
+        AssertThrow(st, MakeStackCheck(ret, st), LITH_EXN_StackBounds);
+
         if ((goOn = st->retStackPtr > retStackPtr0))
         {
             xt = Mem(st, st->rIP);
             st->rIP += 2;
         }
     }
-
-    AssertThrow(st, MakeStackCheck(data, st), LITH_EXN_StackBounds);
 }
 
 int lith_catch(lith_State *st, CELL xt)
