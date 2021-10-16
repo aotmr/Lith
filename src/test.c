@@ -23,6 +23,10 @@ UTEST_F(BasicFixture, empty_line_0) { InterpLiteral(ST, ""); }
 UTEST_F(BasicFixture, blank_line_1) { InterpLiteral(ST, " "); }
 UTEST_F(BasicFixture, blank_line_9) { InterpLiteral(ST, "         "); }
 
+UTEST_F(BasicFixture, can_throw_manually) { EXPECT_EQ(InterpLiteral(ST, "#0 throw"), LITH_EXN_FailedAssertion); }
+UTEST_F(BasicFixture, drop_throws_on_underflow) { EXPECT_EQ(InterpLiteral(ST, "drop"), LITH_EXN_StackBounds); }
+UTEST_F(BasicFixture, over_throws_on_underflow) { EXPECT_EQ(InterpLiteral(ST, "over"), LITH_EXN_StackBounds); }
+
 UTEST_F_TEARDOWN(BasicFixture)
 {
     lith_destroy(utest_fixture->st);
