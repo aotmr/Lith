@@ -166,9 +166,14 @@ static inline CELL *peekImpl(lith_State *st, CELL *stack, int ptr, int limit, in
 
 /* Dictionary -----------------------------------------------------------------
 
-The dictionary is currently implemented as an associative list using cons cells
-as the basic data structure. The dictionary is present in the image but only
-the interpreter needs to touch it.
+The dictionary is implemented as a contiguous associative array of cell pairs
+that grows up to a limit below main memory. It is not inconceivable that we
+could grow the dictionary in the negative direction as well.
+
+We previously implemented this as an associative list of cons cells. This
+proved to be wasteful (using four cells per entry) and the interlieving
+of code and dictionary data makes any form of scoping impossible. Now it will
+be possible to define nested colon definitions.
 
 */
 
