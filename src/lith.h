@@ -26,7 +26,10 @@ typedef struct
   int memLimit;
   int dataStackLimit;
   int retStackLimit;
+  int dictLimit;
 } lith_CreateOptions;
+
+extern const lith_CreateOptions lith_defaultOptions;
 
 lith_State *lith_create(const lith_CreateOptions *opt);
 

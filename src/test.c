@@ -15,7 +15,7 @@ struct BasicFixture
 
 UTEST_F_SETUP(BasicFixture)
 {
-    utest_fixture->st = lith_create(&(lith_CreateOptions){1 << 16, 32, 32});
+    utest_fixture->st = lith_create(&lith_defaultOptions);
     EXPECT_TRUE(utest_fixture->st);
 }
 

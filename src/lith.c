@@ -26,6 +26,7 @@ struct lith_State_s
 
     CELL *mem;
     int memLimit;
+    int dictLimit;
 
     CELL rLast;
     int rHere;
@@ -38,19 +39,34 @@ struct lith_State_s
     MakeStack(ret);
 };
 
+const lith_CreateOptions lith_defaultOptions = {
+    .memLimit = 1 << 24,
+    .dataStackLimit = 256,
+    .retStackLimit = 256,
+    .dictLimit = 1 << 16,
+};
+
 lith_State *lith_create(const lith_CreateOptions *opt)
 {
     assert(opt);
+
+    if (opt->memLimit < 0 ||
+        opt->dataStackLimit < 0 ||
+        opt->retStackLimit < 0 ||
+        opt->dictLimit < 0 ||
+        opt->memLimit < opt->dictLimit)
+        return NULL;
 
     lith_State *st = calloc(1, sizeof(lith_State));
     assert(st);
 
     st->mem = calloc(opt->memLimit, sizeof(CELL));
     st->memLimit = opt->memLimit;
+    st->dictLimit = opt->dictLimit;
     assert(st->mem);
 
-    st->rLast = LITH_NIL;
-    st->rHere = 1;
+    st->rLast = 0;
+    st->rHere = 0x100;
     st->rIP = LITH_NIL;
 
     st->catchExn = false;
@@ -162,35 +178,21 @@ the interpreter needs to touch it.
 #define CAR(st, p) Mem(st, p + 0)
 #define CDR(st, p) Mem(st, p + 2)
 
-#define CAAR(st, p) CAR(st, CAR(st, p))
-#define CADR(st, p) CDR(st, CAR(st, p))
-
-static CELL lith_cons(lith_State *st, CELL car, CELL cdr)
-{
-    assert(st);
-
-    AlignEven(st);
-    int addr = st->rHere;
-    Comma(st) = car;
-    Comma(st) = cdr;
-    return lith_makeEven(addr);
-}
-
 static void lith_bind(lith_State *st, CELL key, CELL val)
 {
     assert(st);
-
-    st->rLast = lith_cons(st, lith_cons(st, key, val), st->rLast);
+    st->rLast += 2;
+    CAR(st, lith_makePtr(st->rLast)) = key;
+    CDR(st, lith_makePtr(st->rLast)) = val;
 }
 
 static CELL lith_find(lith_State *st, CELL key)
 {
     assert(st);
 
-    for (CELL p = st->rLast; !lith_isNull(p); p = CDR(st, p))
-    {
-        if (CAAR(st, p) == key)
-            return CADR(st, p);
+    for (CELL p = lith_makePtr(st->rLast); p > 0; p -= 2) {
+        if (CAR(st, p) == key)
+            return CDR(st, p);
     }
     return LITH_NIL;
 }
