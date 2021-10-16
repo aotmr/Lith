@@ -94,7 +94,7 @@ we might use the *upper* bits of a cell to further annotate it.
 
 ### Primitives
 
-Lith currently has 37 primitives.
+Lith currently has 38 primitives.
 Primitives are represented by atoms of their name.
 
 | Category | Name | Arity | Description |
