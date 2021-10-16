@@ -358,7 +358,7 @@ static void dumpInnerState(lith_State *st, FILE *outFile, const char *info)
     fprintf(outFile, ERev "IP %08X\tDSP% 4d\tRSP% 4d\t%s" EReset, st->rIP, st->dataStackPtr, st->retStackPtr, info);
     for (int i = 0; i < st->dataStackPtr; ++i)
     {
-        fprintf(outFile, "\t% ld", st->dataStack[i]);
+        prettyPrintCell(outFile, st->dataStack[i]);
     }
     fputc('\n', outFile);
 }
