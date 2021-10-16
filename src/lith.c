@@ -195,7 +195,8 @@ static CELL lith_find(lith_State *st, CELL key)
 {
     assert(st);
 
-    for (CELL p = lith_makePtr(st->rLast); p > 0; p -= 2) {
+    for (CELL p = lith_makePtr(st->rLast); p > 0; p -= 2)
+    {
         if (CAR(st, p) == key)
             return CDR(st, p);
     }
@@ -288,6 +289,42 @@ static void doCIStore(lith_State *st)
     CIndex(st, addr, offs) = lith_getValOrPtr(data) & 0xFFu;
 }
 
+static bool cellIsProbablyAtom(CELL c)
+{
+    if (!lith_isAtom(c))
+        return false;
+    int atomLen = lith_atomLen(c);
+    if (atomLen >= sizeof(CELL))
+        return false;
+    for (int i = 0; i < sizeof(CELL) - 1; ++i)
+    {
+        if (i < atomLen ? !isgraph(lith_atomStr(c)[i]) : lith_atomStr(c)[i] != '\0')
+            return false;
+    }
+    return true;
+}
+
+static void prettyPrintCell(FILE *outFile, CELL c)
+{
+    static const int CELL_WIDTH = 16;
+    if (lith_isNull(c))
+    {
+        fprintf(outFile, "%-*s  ", CELL_WIDTH, "NIL");
+    }
+    else if (lith_isVal(c))
+    {
+        fprintf(outFile, "#% *ld ", CELL_WIDTH, lith_getValOrPtr(c));
+    }
+    else if (cellIsProbablyAtom(c))
+    {
+        fprintf(outFile, "'%-*.*s ", CELL_WIDTH, lith_atomLen(c), lith_atomStr(c));
+    }
+    else
+    {
+        fprintf(outFile, "$%*lX ", CELL_WIDTH, c);
+    }
+}
+
 void lith_dumpMem(lith_State *st, FILE *outFile)
 {
     assert(st);
@@ -300,23 +337,7 @@ void lith_dumpMem(lith_State *st, FILE *outFile)
         fprintf(outFile, "%08X |", (unsigned int)lith_makePtr(i));
         for (int j = 0; j < CELLS_PER_ROW; ++j)
         {
-            fprintf(outFile, "  %016lX", st->mem[i + j]);
-        }
-
-        fprintf(outFile, "%s", " | ");
-        // print character data of memory
-        for (int j = 0; j < CELLS_PER_ROW * sizeof(CELL); ++j)
-        {
-            unsigned char c = CIndex(st, lith_makePtr(i), lith_makeVal(j));
-            if (j % sizeof(CELL) == 0)
-                fputc(' ', outFile);
-
-            if (isprint(c))
-                fputc(c, outFile);
-            else if (iscntrl(c))
-                fprintf(outFile, ERev "%c" EReset, c + ' ');
-            else
-                fprintf(outFile, ERev "." EReset);
+            prettyPrintCell(outFile, st->mem[i + j]);
         }
         fputc('\n', outFile);
     }
@@ -335,7 +356,8 @@ static void dumpInnerState(lith_State *st, FILE *outFile, const char *info)
     assert(info);
 
     fprintf(outFile, ERev "IP %08X\tDSP% 4d\tRSP% 4d\t%s" EReset, st->rIP, st->dataStackPtr, st->retStackPtr, info);
-    for (int i = 0; i < st->dataStackPtr; ++i) {
+    for (int i = 0; i < st->dataStackPtr; ++i)
+    {
         fprintf(outFile, "\t% ld", st->dataStack[i]);
     }
     fputc('\n', outFile);
