@@ -37,6 +37,7 @@ enum {
     LITH_PRIM_STORE,
     LITH_PRIM_CIFETCH,
     LITH_PRIM_CISTORE,
+    LITH_PRIM_EMIT,
     LITH_PRIM_PRINT,
     LITH_PRIM_CR,
 };
@@ -77,5 +78,6 @@ struct resword_s { const char * name; int id; };
 "store", LITH_PRIM_STORE,
 "cifetch", LITH_PRIM_CIFETCH,
 "cistore", LITH_PRIM_CISTORE,
+"emit", LITH_PRIM_EMIT,
 "print", LITH_PRIM_PRINT,
 "cr", LITH_PRIM_CR,

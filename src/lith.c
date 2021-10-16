@@ -447,6 +447,7 @@ void lith_call(lith_State *st, CELL xt)
             case LITH_PRIM_CIFETCH: doCIFetch(st); break; // ( addr offs -- addr c )
             case LITH_PRIM_CISTORE: doCIStore(st); break; // ( addr offs c -- addr )
             // output
+            case LITH_PRIM_EMIT: putchar(lith_getValOrPtr(DPop(st))); break;
             case LITH_PRIM_PRINT: doPrintCell(DPop(st)); break;
             case LITH_PRIM_CR: puts(""); break;
             // clang-format on
