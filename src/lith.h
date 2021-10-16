@@ -87,4 +87,4 @@ int lith_catch(lith_State * st, CELL xt);
 
 // Inner interpreter ----------------------------------------------------------
 
-void lith_interpLine(lith_State *st, const char *line, int lineLen);
+int lith_interpLine(lith_State *st, const char *line, int lineLen);

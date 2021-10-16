@@ -505,7 +505,7 @@ void compileOrCall(lith_State *st, CELL x)
     if (st->iNest > 0)
         Comma(st) = x;
     else
-        lith_catch(st, x);
+        lith_call(st, x);
 }
 
 // Interpret a single word
@@ -627,18 +627,24 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
 }
 
 // Tokenize and execute a line of code
-void lith_interpLine(lith_State *st, const char *line, int lineLen)
+int lith_interpLine(lith_State *st, const char *line, int lineLen)
 {
     assert(st);
     assert(line);
     assert(lineLen >= 0);
 
     if (lineLen == 0)
-        return;
+        return 0;
 
     char lineCopy[lineLen + 1];
     memcpy(lineCopy, line, lineLen);
     lineCopy[lineLen] = '\0';
+
+    assert(!st->catchExn);
+    st->catchExn = true;
+    int error = setjmp(st->handleExn);
+    if (error)
+        return error;
 
     char *linePtr = lineCopy;
     char *word = NULL;
@@ -648,4 +654,7 @@ void lith_interpLine(lith_State *st, const char *line, int lineLen)
             break;
         lith_interpWord(st, word, strlen(word));
     }
+
+    st->catchExn = false;
+    return 0;
 }
