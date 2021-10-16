@@ -120,21 +120,22 @@ Primitives are represented by atoms of their name.
 | bitwise | `and` | ( a b -- a&b ) |
 | | `or` | ( a b -- a\|b ) |
 | | `xor` | ( a b -- a^b ) |
-| stack manipulation | `dup` | ( a -- a a ) | duplicate top stack item
-| | `over` | ( a b -- a b a ) | copy second stack item to top
-| | `drop` | ( a -- ) | discard top stack item
-| | `nip` | ( a b -- b ) | discard second stack item
-| | `>r` | ( x -- R:x ) | transfer value from return to data stack
-| | `r>` | ( R:x -- x ) | transfer values from data to return stack
+| stack manipulation | `dup` | ( a -- a a ) | duplicate top stack item |
+| | `over` | ( a b -- a b a ) | copy second stack item to top |
+| | `drop` | ( a -- ) | discard top stack item |
+| | `nip` | ( a b -- b ) | discard second stack item |
+| | `>r` | ( x -- R:x ) | transfer value from return to data stack |
+| | `r>` | ( R:x -- x ) | transfer values from data to return stack |
 | comma | `here` | ( -- addr ) | push here-pointer |
 | | `allot` | ( n -- ) | adjust here-pointer by `n` cells |
 | | `bind` | ( v k -- ) | bind `v` to `k` in global dictionary |
-| memory access | `fetch` | ( addr -- cell )
+| memory access | `fetch` | ( addr -- cell ) |
 | | `store` | ( cell addr -- ) |
-| | `cifetch` | ( addr offs -- addr byte ) | fetch `byte` at `offs` bytes from the beginning of the cell at `addr`
-| | `cistore` | ( addr offs byte -- addr ) | store `byte` to `offs` bytes from the beginning of the cell at `addr`
-| output | `print` | ( cell -- ) | print a cell in a way that's more useful for debugging than anything
-| | `cr` | ( -- ) | print a newline
+| | `cifetch` | ( addr offs -- addr byte ) | fetch `byte` at `offs` bytes from the beginning of the cell at `addr` |
+| | `cistore` | ( addr offs byte -- addr ) | store `byte` to `offs` bytes from the beginning of the cell at `addr` |
+| output | `emit` | ( char -- ) | write a cell converted to a character to standard input |
+| | `print` | ( cell -- ) | print a cell in a way that's more useful for debugging than anything |
+| | `cr` | ( -- ) | print a newline |
 
 #### cifetch, cistore
 
