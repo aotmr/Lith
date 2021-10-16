@@ -384,7 +384,7 @@ void lith_call(lith_State *st, CELL xt)
             case LITH_PRIM_ISNULL: DoUnaryFn(st, lith_isNull); break;
             case LITH_PRIM_ISVAL: DoUnaryFn(st, lith_isVal); break;
             case LITH_PRIM_ISPTR: DoUnaryFn(st, lith_isPtr); break;
-            case LITH_PRIM_ISPAIR: DoUnaryFn(st, lith_isEven); break;
+            case LITH_PRIM_ISEVEN: DoUnaryFn(st, lith_isEven); break;
             case LITH_PRIM_ISATOM: DoUnaryFn(st, lith_isAtom); break;
             // comparison
             case LITH_PRIM_ISEQUAL: DNxt(st) = lith_makeVal(-(DNxt(st) == DTop(st))); DPop(st); break;

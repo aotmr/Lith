@@ -42,7 +42,7 @@ enum {
     LITH_PRIM_ISNULL,
     LITH_PRIM_ISVAL,
     LITH_PRIM_ISPTR,
-    LITH_PRIM_ISPAIR,
+    LITH_PRIM_ISEVEN,
     LITH_PRIM_ISATOM,
     LITH_PRIM_ISEQUAL,
     LITH_PRIM_ISNEG,
@@ -186,7 +186,7 @@ in_word_set (register const char *str, register size_t len)
 #line 46 "src/prim.gperf"
       {"exit", LITH_PRIM_EXIT,},
 #line 56 "src/prim.gperf"
-      {"even?", LITH_PRIM_ISPAIR,},
+      {"even?", LITH_PRIM_ISEVEN,},
 #line 48 "src/prim.gperf"
       {"quot", LITH_PRIM_QUOT,},
 #line 76 "src/prim.gperf"
