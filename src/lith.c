@@ -639,11 +639,11 @@ void lith_interpWord(lith_State *st, char *word, int wordLen)
             CELL fix = DPop(st);
             Comma(st) = ConstAtom("exit");
             Mem(st, fix) = lith_makeVal(st->rHere - lith_getValOrPtr(fix));
-
             --st->iNest;
             assert(st->iNest >= 0);
 
-            compileOrPush(st, body);
+            if (st->iNest == 0)
+                DPush(st) = body;
             break;
         }
         else
