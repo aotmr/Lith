@@ -1,4 +1,9 @@
-# Lith, Meta Environment Project
+# Meta Environment Project Lith
+
+## Elen
+
+My first turing complete metaenvironment written in Awk,
+here for occasional reference and posterity.
 
 ## Lith00
 

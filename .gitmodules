@@ -1,0 +1,3 @@
+[submodule "elen"]
+	path = elen
+	url = https://github.com/aotmr/elen.git
